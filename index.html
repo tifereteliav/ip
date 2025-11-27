@@ -1,282 +1,448 @@
-Below is a practical, clinic-ready framework for designing a questionnaire / digital decision-support app that helps adults with type 1 diabetes choose between the Medtronic 780G, Tandem t:slim X2/Mobi, and Omnipod 5.
-I integrate the comparison information from the uploaded Panther tool 
-
-compare pumps panther tool
-
- and common clinical considerations used in pump-matching.
-
-1. DESIGN PRINCIPLES
-
-Your questionnaire/app should:
-
-⭐ Be short (5–7 minutes)
-
-Patients lose engagement in long surveys. Use branching logic so they only see relevant questions.
-
-⭐ Use plain language
-
-Avoid algorithm jargon. Provide tooltips or short explanations.
-
-⭐ Match patient needs → device features
-
-Each answer should directly map to characteristics of pumps (e.g., tubeless preference → favors Omnipod 5).
-
-⭐ End with a personalized recommendation
-
-Either:
-
-Top 1–2 pump options with rationale, or
-
-A “pump compatibility profile” summarizing fit across domains.
-
-2. CORE DOMAINS TO INCLUDE
-
-From clinical practice and the Panther comparison tool, these are the domains that matter most:
-
-1️⃣ Lifestyle & Wearability Preferences
-
-Tubed vs tubeless
-
-Comfort wearing a device on body
-
-Ability/willingness to carry a phone
-
-Sports/exercise style
-
-Travel, swimming, work environment
-
-2️⃣ Tech Preferences & Phone Ecosystem
-
-iPhone vs Android
-
-Desire to bolus from phone
-
-Comfort with app-based operation
-
-Need for remote monitoring (caregivers, partners)
-
-3️⃣ Glucose Management Style
-
-Importance of automated boluses
-
-Preference for adjustable targets
-
-Desire to tune settings (I:C, CF, basal profiles)
-
-Use of sleep/activity modes
-
-4️⃣ Current CGM Preference
-
-Dexcom (G6/G7)
-
-Guardian 4
-
-Glooko/Discover/Tidepool/Beta Bionics data ecosystem
-
-5️⃣ Hypoglycemia/hyperglycemia concerns
-
-Fear of lows
-
-Need for aggressive correction algorithms
-
-Need for strong automation during meals/overnight
-
-6️⃣ Insurance / cost / availability
-
-(Optional in app; essential in clinic workflow.)
-
-3. RECOMMENDED QUESTIONNAIRE STRUCTURE
-
-Below is a ready-to-use template you can convert into an app, Google Form, or EMR-integrated form.
-
-SECTION A — DEVICE WEAR & LIFESTYLE
-
-1. Do you prefer a pump with or without tubing?
-
-No tubing (patch pump) → favors Omnipod 5
-
-Tubing is okay → allows t:slim / Mobi / Medtronic 780G
-
-2. How comfortable are you wearing a device directly on the skin?
-
-Very comfortable → any pump
-
-Prefer a separate device in pocket → t:slim / Mobi / 780G
-
-3. Do you prefer dosing insulin directly from your phone?
-
-Yes → strongly favors t:slim/Mobi (iPhone), Omnipod 5
-
-No → any pump
-
-4. What type of activities do you do most often?
-(check all)
-
-High-intensity sports
-
-Swimming/water sports
-
-Frequent travel
-
-Sedentary
-Logic:
-
-Heavy sports → Omnipod 5 often preferred (no tubing).
-
-Frequent travel → all usable, but Omnipod/t:slim easier for airport security.
-
-SECTION B — CGM PREFERENCES
-
-5. Which CGM do you currently use or prefer?
-
-Dexcom G6/G7 → t:slim X2/Mobi, Omnipod 5, iLet
-
-Guardian 4 → Medtronic 780G only
-
-Libre 2+ or Libre 3+ → t:slim, Omnipod (limited), Twiist
-(mapping per chart) 
-
-compare pumps panther tool
-
-6. Do you want to share CGM/pump data with someone (partner/parent)?
-
-Yes → all except Libre-based systems
-
-Need pump+CGM remote view → 780G, t:slim/Mobi, Omnipod 5
-
-SECTION C — AUTOMATION STYLE
-
-7. How important is it that the pump gives automated correction boluses?
-
-Very important → Medtronic 780G (every 5 min), t:slim (1/hr)
-
-Not important → Omnipod 5 (no auto boluses)
-
-8. Do you prefer to adjust and customize settings (I:C, correction factor, active insulin time)?
-
-Yes → t:slim, Omnipod 5
-
-No, prefer hands-off → Medtronic 780G (limited adjustment)
-
-9. How tight do you want your glucose target(s)?
-
-100–112 mg/dL range → Medtronic 780G, t:slim
-
-Adjustable depending on time of day → t:slim, Omnipod 5
-
-Single fixed target → Omnipod 5
-
-(mapping per Panther chart) 
-
-compare pumps panther tool
-
-SECTION D — HYPOGLYCEMIA/HYPERGLYCEMIA RISK
-
-10. How concerned are you about low blood sugars?
-
-Very → pumps with strong low-prevention behavior
-
-t:slim (Control-IQ sleep mode)
-
-Omnipod 5 (aggressive suspend)
-
-11. How important is the ability to aggressively correct highs?
-
-Very → Medtronic 780G (frequent auto-corrections)
-
-SECTION E — PHONE & DATA USE
-
-12. What phone do you use?
-
-iPhone → compatible with all except Medtronic mobile bolus limitation in some regions
-
-Android → Omnipod 5 supports fewer Android models; t:slim/Mobi iOS only
-
-13. Do you want to be able to see pump and sensor data together on your phone?
-
-Yes → t:slim/Mobi, Omnipod 5, Medtronic 780G, Twiist
-
-SECTION F — PATIENT PRIORITIES (RANKING)
-
-Ask patient to rank the following from most to least important:
-
-Maximum automation
-
-Least visible on body
-
-No tubing
-
-Strong correction of highs
-
-Best low-glucose prevention
-
-Most customizable settings
-
-Phone-based control
-
-Lowest burden / simplest workflow
-
-The app can weigh responses and generate a profile.
-
-4. HOW TO SCORE OR MATCH RESPONSES
-Example weighting model (simple)
-Feature	Strongly Favors	Moderate	Not Ideal
-Tubeless	Omnipod 5	–	t:slim, Medtronic 780G
-Auto-corrections	780G	t:slim	Omnipod 5
-iPhone bolus from phone	t:slim/Mobi	Omnipod 5	780G
-Dexcom loyalty	t:slim/Mobi, Omnipod 5	–	780G
-Want simplest workflow	Omnipod 5	780G	t:slim
-Need tight overnight control	t:slim sleep mode	780G	Omnipod 5
-
-Your app can tally these behind the scenes and display, for example:
-
-Your Best Fit: Tandem t:slim X2
-
-Why:
-
-You prefer Dexcom
-
-You want adjustable targets
-
-You want remote bolusing from phone
-
-You value strong overnight protection
-
-You prefer more control over pump settings
-
-5. OPTIONAL: CLINICIAN MODE
-
-Allow clinicians to enter additional data:
-
-A1C
-
-TIR
-
-Hypoglycemia unawareness
-
-Carbohydrate counting accuracy
-
-Occupation (e.g., pump visibility concerns)
-
-The system can adjust recommendations—for example, poor carb counting may favor pumps with more automated correction (780G).
-
-6. FINAL OUTPUT EXAMPLE (AUTO-GENERATED)
-
-Top Recommendation: Omnipod 5
-• You prefer a tubeless system
-• You want phone-based control
-• You engage in regular sports
-• You use Dexcom G6/G7
-• You prefer simple automation without needing to adjust settings
-
-Secondary Option: t:slim X2
-• Good if you want stronger auto-corrections or sleep mode
-
-If you want, I can:
-
-✅ Build a fully written questionnaire verbatim
-✅ Convert this into a scorable digital flowchart
-✅ Create JSON logic for a web/app developer
-✅ Draft patient-friendly explanations for each question
-
-Would you like the complete questionnaire text, the algorithm scoring logic, or a prototype layout for an app?
+import React, { useState, useMemo } from 'react';
+import { ChevronRight, ChevronLeft, Info, Check, Activity } from 'lucide-react';
+
+/**
+ * Diabetes Pump Decision Support Tool (Hebrew) - Classic Clean Design
+ * Based on Panther Program & Clinical Guidelines
+ */
+
+// --- DATA & LOGIC ---
+
+const PUMPS = [
+  {
+    id: '780g',
+    name: 'Medtronic 780G',
+    manufacturer: 'Medtronic',
+    features: {
+      tubeless: false,
+      smartphone_bolus: false,
+      auto_correction: 'high',
+      cgm_compatibility: ['guardian'],
+      simplicity: 'medium',
+      waterproof: true,
+      target_adjust: 'limited',
+      fear_of_lows: 'high',
+      algorithm_type: 'PID/Advanced',
+    },
+    description: 'מערכת עם אוטומציה חזקה לתיקון סוכר גבוה (כל 5 דקות). מתאימה למי שרוצה שהמשאבה תעבוד קשה בשבילו, אך דורשת שימוש בחיישן של מדטרוניק.',
+    pros: [
+      'תיקונים אוטומטיים אגרסיביים כל 5 דקות',
+      'מצוינת בהורדת סוכר גבוה',
+      'מערכת סגורה מלאה עם חיישן תואם'
+    ],
+    cons: [
+      'מחייבת שימוש בחיישן גארדיאן (או Simplera בעתיד)',
+      'יש צורך בצינורית',
+      'אין שליטה מלאה מהטלפון (רק צפייה)'
+    ]
+  },
+  {
+    id: 'tslim',
+    name: 'Tandem t:slim X2',
+    manufacturer: 'Tandem',
+    features: {
+      tubeless: false,
+      smartphone_bolus: true,
+      auto_correction: 'medium',
+      cgm_compatibility: ['dexcom', 'libre'],
+      simplicity: 'medium',
+      waterproof: false,
+      target_adjust: 'high',
+      fear_of_lows: 'very_high',
+      algorithm_type: 'Control-IQ',
+    },
+    description: 'משאבה פופולרית עם אלגוריתם Control-IQ. מתאימה מאוד למשתמשי דקסקום/ליברה שרוצים שליטה מדויקת, כולל מצב שינה ופעילות גופנית.',
+    pros: [
+      'אינטגרציה מעולה עם Dexcom ו-Libre',
+      'אפשרות למתן בולוס מהטלפון',
+      'מצבי "שינה" ו"פעילות" ייעודיים'
+    ],
+    cons: [
+      'יש צורך בצינורית',
+      'דורשת טעינה (סוללה נטענת)',
+      'תיקון אוטומטי (בולוס) רק פעם בשעה'
+    ]
+  },
+  {
+    id: 'mobi',
+    name: 'Tandem Mobi',
+    manufacturer: 'Tandem',
+    features: {
+      tubeless: 'hybrid',
+      smartphone_bolus: true,
+      auto_correction: 'medium',
+      cgm_compatibility: ['dexcom', 'libre'],
+      simplicity: 'medium',
+      waterproof: true,
+      target_adjust: 'high',
+      fear_of_lows: 'very_high',
+      algorithm_type: 'Control-IQ',
+    },
+    description: 'הגרסה הקטנה והמודרנית של טנדם. נשלטת כמעט לחלוטין מהאייפון, עמידה למים וניתנת לענידה מגוונת (על הגוף או בכיס).',
+    pros: [
+      'קטנה מאוד (כחצי מגודל ה-t:slim)',
+      'שליטה מלאה מהאייפון',
+      'עמידה למים'
+    ],
+    cons: [
+      'תלות בסמארטפון לתפעול מלא',
+      'עדיין יש צינורית (גם אם קצרה)',
+      'תואמת כרגע בעיקר לאייפון'
+    ]
+  },
+  {
+    id: 'omnipod5',
+    name: 'Omnipod 5',
+    manufacturer: 'Insulet',
+    features: {
+      tubeless: true,
+      smartphone_bolus: true,
+      auto_correction: 'low',
+      cgm_compatibility: ['dexcom', 'libre'],
+      simplicity: 'high',
+      waterproof: true,
+      target_adjust: 'medium',
+      fear_of_lows: 'medium',
+      algorithm_type: 'SmartAdjust',
+    },
+    description: 'משאבת טלאי (ללא צינורית). הבחירה המובילה לחופש מתנועה. האלגוריתם מתאים את הבזאל אך אינו נותן בולוסים אוטומטיים לתיקון.',
+    pros: [
+      'ללא צינורית (Tubeless) - חופש תנועה',
+      'מתאימה מאוד לילדים ופעילות ספורטיבית',
+      'הכנסה אוטומטית (ללא מחט נראית לעין)'
+    ],
+    cons: [
+      'אין בולוסים אוטומטיים לתיקון (רק שינוי בזאל)',
+      'פוד חד פעמי (פסולת סביבתית)',
+      'מחייבת נשיאת שלט (או טלפון תואם אנדרואיד)'
+    ]
+  },
+  {
+    id: 'ilet',
+    name: 'iLet Bionic Pancreas',
+    manufacturer: 'Beta Bionics',
+    features: {
+      tubeless: false,
+      smartphone_bolus: false,
+      auto_correction: 'high',
+      cgm_compatibility: ['dexcom', 'libre'],
+      simplicity: 'very_high',
+      waterproof: true,
+      target_adjust: 'none',
+      fear_of_lows: 'medium',
+      algorithm_type: 'Autonomous',
+    },
+    description: 'ה"לבלב הביוני". המשאבה היחידה שלא דורשת ספירת פחמימות (רק הערכת גודל ארוחה). פתרון למי שרוצה מינימום התעסקות.',
+    pros: [
+      'אין צורך לספור פחמימות (רק גודל ארוחה)',
+      'אין הגדרות בזאל או יחס אינסולין',
+      'פשוטה מאוד לתפעול'
+    ],
+    cons: [
+      'פחות שליטה למשתמש המנוסה',
+      'מטרות סוכר גבוהות יותר מחלק מהמתחרים',
+      'יש צינורית'
+    ]
+  }
+];
+
+const QUESTIONS = [
+  {
+    id: 'tubing',
+    text: 'עד כמה מפריעה לך המחשבה על צינורית שמחוברת לגוף?',
+    options: [
+      { id: 'hate', label: 'מפריעה מאוד - אני חייב/ת בלי צינורית', scores: { omnipod5: 10, mobi: 3, tslim: -5, '780g': -5, ilet: -5 } },
+      { id: 'prefer_no', label: 'מעדיף/ה בלי, אבל אתפשר אם הביצועים טובים', scores: { omnipod5: 5, mobi: 2, tslim: 0, '780g': 0, ilet: 0 } },
+      { id: 'dont_care', label: 'לא מפריע לי / רגיל/ה לזה', scores: { omnipod5: 0, mobi: 0, tslim: 0, '780g': 0, ilet: 0 } },
+    ]
+  },
+  {
+    id: 'sensor',
+    text: 'באיזה חיישן (CGM) את/ה משתמש/ת או מעדיף/ה להשתמש?',
+    options: [
+      { id: 'dexcom', label: 'Dexcom (G6/G7)', scores: { tslim: 5, mobi: 5, omnipod5: 5, ilet: 5, '780g': -10 } },
+      { id: 'libre', label: 'Freestyle Libre (2+/3)', scores: { tslim: 5, mobi: 2, omnipod5: 5, ilet: 5, '780g': -10 } },
+      { id: 'guardian', label: 'Medtronic (Guardian/Simplera)', scores: { '780g': 10, tslim: -5, mobi: -5, omnipod5: -5, ilet: -5 } },
+      { id: 'none', label: 'אין העדפה / לא משתמש כרגע', scores: {} }
+    ]
+  },
+  {
+    id: 'control',
+    text: 'עד כמה חשוב לך לשלוט במשאבה ולתת בולוסים דרך הסמארטפון שלך?',
+    options: [
+      { id: 'must', label: 'קריטי - אני רוצה הכל מהנייד', scores: { mobi: 8, tslim: 5, omnipod5: 4, '780g': -5, ilet: -2 } },
+      { id: 'nice', label: 'נחמד אם יש, לא חובה', scores: { mobi: 3, tslim: 2, omnipod5: 2, '780g': 0, ilet: 0 } },
+      { id: 'device', label: 'מעדיף/ה להשתמש במכשיר המשאבה עצמו', scores: { '780g': 2, tslim: 2, omnipod5: -2, mobi: -2, ilet: 2 } }
+    ]
+  },
+  {
+    id: 'correction',
+    text: 'כשהסוכר גבוה, איך היית רוצה שהמשאבה תגיב?',
+    options: [
+      { id: 'aggressive', label: 'שתתקן לבד ובאגרסיביות (בולוסים אוטומטיים)', scores: { '780g': 8, ilet: 6, tslim: 4, mobi: 4, omnipod5: -5 } },
+      { id: 'moderate', label: 'שתגביר את קצב הרקע (בזאל), אני אתן בולוס אם צריך', scores: { omnipod5: 5, tslim: 2, mobi: 2, '780g': -2, ilet: -2 } },
+    ]
+  },
+  {
+    id: 'simplicity',
+    text: 'מה הגישה שלך לגבי ניהול הסוכרת וספירת פחמימות?',
+    options: [
+      { id: 'expert', label: 'אני רוצה לשלוט בהגדרות ולדייק כל פרמטר', scores: { tslim: 6, mobi: 6, omnipod5: 4, '780g': 2, ilet: -8 } },
+      { id: 'regular', label: 'אני סופר/ת פחמימות ומסתדר/ת עם הגדרות', scores: { tslim: 2, mobi: 2, '780g': 4, omnipod5: 4, ilet: 0 } },
+      { id: 'simple', label: 'אני שונא/ת לספור פחמימות - תנו לי משהו פשוט ("הערכה גסה")', scores: { ilet: 10, '780g': 2, tslim: -2, mobi: -2, omnipod5: 0 } }
+    ]
+  },
+  {
+    id: 'activity',
+    text: 'מה לגבי פעילות גופנית ומים?',
+    options: [
+      { id: 'swimmer', label: 'שוחה הרבה / נמצא במים', scores: { omnipod5: 6, mobi: 4, '780g': 4, ilet: 2, tslim: -4 } },
+      { id: 'contact', label: 'ספורט מגע / אינטנסיבי (צריך לנתק את המשאבה)', scores: { omnipod5: 5, tslim: 3, mobi: 3, '780g': 3, ilet: 2 } },
+      { id: 'regular', label: 'פעילות רגילה / חדר כושר', scores: {} }
+    ]
+  }
+];
+
+// --- COMPONENTS ---
+
+const Header = () => (
+  <header className="bg-blue-600 text-white p-6 rounded-b-3xl shadow-lg mb-6">
+    <div className="flex items-center justify-between max-w-2xl mx-auto">
+      <div>
+        <h1 className="text-2xl font-bold">התאמת משאבת אינסולין</h1>
+        <p className="text-blue-100 text-sm opacity-90">כלי תומך החלטה למטופלי סוכרת סוג 1</p>
+      </div>
+      <Activity className="w-10 h-10 text-white opacity-80" />
+    </div>
+  </header>
+);
+
+const ResultCard = ({ pump, rank, reason }) => {
+  const isTop = rank === 1;
+  return (
+    <div className={`border-2 rounded-2xl p-6 mb-4 transition-all ${isTop ? 'border-blue-500 bg-blue-50 shadow-xl' : 'border-gray-200 bg-white shadow-sm'}`}>
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <span className={`text-xs font-bold px-3 py-1 rounded-full ${isTop ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}>
+            {isTop ? 'ההתאמה הטובה ביותר 🏆' : 'אפשרות שנייה חזקה'}
+          </span>
+          <h2 className="text-2xl font-bold text-gray-800 mt-2">{pump.name}</h2>
+          <p className="text-sm text-gray-500">{pump.manufacturer}</p>
+        </div>
+        {isTop && <div className="bg-blue-100 p-2 rounded-full"><Check className="w-6 h-6 text-blue-600" /></div>}
+      </div>
+
+      <p className="text-gray-700 mb-4 leading-relaxed">
+        {pump.description}
+      </p>
+
+      <div className="mb-4">
+        <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+          <Info size={16} />
+          למה זה מתאים לך?
+        </h3>
+        <ul className="space-y-2">
+          {reason.map((r, idx) => (
+            <li key={idx} className="flex items-start text-sm text-gray-700">
+              <span className="text-green-500 ml-2">✓</span>
+              {r}
+            </li>
+          ))}
+        </ul>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+          <div className="bg-white p-2 rounded border">
+              <span className="font-bold block text-gray-500">צינורית</span>
+              {pump.features.tubeless === true ? 'ללא (Tubeless)' : pump.features.tubeless === 'hybrid' ? 'היברידי (קצר)' : 'יש צינורית'}
+          </div>
+          <div className="bg-white p-2 rounded border">
+               <span className="font-bold block text-gray-500">חיישן</span>
+               {pump.features.cgm_compatibility.join(' / ')}
+          </div>
+          <div className="bg-white p-2 rounded border">
+               <span className="font-bold block text-gray-500">תיקון אוטומטי</span>
+               {pump.features.auto_correction === 'high' ? 'אגרסיבי (כל 5 דק)' : pump.features.auto_correction === 'medium' ? 'בינוני (פעם בשעה)' : 'עדין (בזאל בלבד)'}
+          </div>
+          <div className="bg-white p-2 rounded border">
+               <span className="font-bold block text-gray-500">שליטה מהנייד</span>
+               {pump.features.smartphone_bolus ? 'קיימת' : 'מוגבלת / אין'}
+          </div>
+      </div>
+    </div>
+  );
+};
+
+export default function PumpSelector() {
+  const [step, setStep] = useState(0); 
+  const [answers, setAnswers] = useState({});
+
+  const results = useMemo(() => {
+    if (step <= QUESTIONS.length) return null;
+
+    let scores = {};
+    PUMPS.forEach(p => scores[p.id] = 0);
+    let matchReasons = {}; 
+    PUMPS.forEach(p => matchReasons[p.id] = []);
+
+    Object.entries(answers).forEach(([questionId, selectedOptionId]) => {
+      const question = QUESTIONS.find(q => q.id === questionId);
+      const option = question.options.find(o => o.id === selectedOptionId);
+      
+      if (option && option.scores) {
+        Object.entries(option.scores).forEach(([pumpId, score]) => {
+          if (scores[pumpId] !== undefined) {
+            scores[pumpId] += score;
+            
+            if (score >= 3) {
+               let simplifiedReason = "";
+               if (questionId === 'tubing') simplifiedReason = "העדפה למבנה המשאבה (צינורית/ללא)";
+               if (questionId === 'sensor') simplifiedReason = `תמיכה בחיישן ${option.label}`;
+               if (questionId === 'control') simplifiedReason = "אפשרויות שליטה מהטלפון";
+               if (questionId === 'correction') simplifiedReason = "סגנון התיקון האוטומטי המועדף עליך";
+               if (questionId === 'simplicity') simplifiedReason = "רמת המעורבות בניהול הסוכרת";
+               if (questionId === 'activity') simplifiedReason = "התאמה לפעילות גופנית ומים";
+
+               if(simplifiedReason && !matchReasons[pumpId].includes(simplifiedReason)) {
+                   matchReasons[pumpId].push(simplifiedReason);
+               }
+            }
+          }
+        });
+      }
+    });
+
+    return PUMPS.map(p => ({
+      ...p,
+      score: scores[p.id],
+      reasons: matchReasons[p.id]
+    })).sort((a, b) => b.score - a.score);
+  }, [step, answers]);
+
+  const handleStart = () => setStep(1);
+  
+  const handleAnswer = (optionId) => {
+    setAnswers(prev => ({ ...prev, [QUESTIONS[step - 1].id]: optionId }));
+    setStep(prev => prev + 1);
+  };
+
+  const handleBack = () => {
+    if (step > 1) setStep(prev => prev - 1);
+    else setStep(0);
+  };
+
+  const handleReset = () => {
+    setStep(0);
+    setAnswers({});
+  };
+
+  // --- RENDER ---
+
+  // 1. INTRO SCREEN
+  if (step === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 font-sans text-right" dir="rtl">
+        <Header />
+        <div className="max-w-2xl mx-auto p-6">
+          <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">ברוכים הבאים</h2>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              בחירת משאבת אינסולין היא החלטה אישית חשובה. 
+              השוק מציע כיום טכנולוגיות מתקדמות (Medtronic, Tandem, Omnipod ועוד), 
+              ולכל אחת יתרונות שונים.
+              <br/><br/>
+              השאלון הקצר שלפניכם (כ-2 דקות) יעזור לנו להבין את אורח החיים וההעדפות שלכם,
+              ויציג המלצה מותאמת אישית על בסיס פרוטוקולים קליניים עדכניים.
+            </p>
+            
+            <div className="bg-blue-50 p-4 rounded-xl mb-8 text-sm text-blue-800 text-right">
+              <strong>שימו לב:</strong> הכלי הוא כלי עזר בלבד ואינו מחליף ייעוץ רפואי עם הצוות המטפל.
+            </div>
+
+            <button 
+              onClick={handleStart}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              התחל שאלון <ChevronLeft />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. RESULTS SCREEN
+  if (step > QUESTIONS.length) {
+    const topMatch = results[0];
+    const secondMatch = results[1];
+
+    return (
+      <div className="min-h-screen bg-gray-50 font-sans text-right" dir="rtl">
+        <Header />
+        <div className="max-w-2xl mx-auto p-6 pb-20">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">ההמלצות שלך</h2>
+            <p className="text-gray-600">על סמך התשובות שלך, הנה המשאבות המתאימות ביותר:</p>
+          </div>
+
+          <ResultCard pump={topMatch} rank={1} reason={topMatch.reasons.length > 0 ? topMatch.reasons : ['התאמה כללית טובה למכלול התשובות שלך']} />
+          
+          {secondMatch.score > -10 && (
+             <ResultCard pump={secondMatch} rank={2} reason={secondMatch.reasons.length > 0 ? secondMatch.reasons : ['אלטרנטיבה טובה עם תכונות דומות']} />
+          )}
+
+          <div className="mt-8 text-center">
+            <button 
+              onClick={handleReset}
+              className="text-gray-500 hover:text-blue-600 underline text-sm"
+            >
+              התחל מחדש
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. QUESTION SCREEN
+  const currentQuestion = QUESTIONS[step - 1];
+  const progress = ((step - 1) / QUESTIONS.length) * 100;
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans text-right" dir="rtl">
+      <Header />
+      <div className="max-w-2xl mx-auto p-6">
+        
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+          <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <span className="text-blue-600 font-bold text-sm mb-2 block">שאלה {step} מתוך {QUESTIONS.length}</span>
+          <h2 className="text-xl font-bold text-gray-800 mb-6 leading-normal">
+            {currentQuestion.text}
+          </h2>
+
+          <div className="space-y-3">
+            {currentQuestion.options.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => handleAnswer(option.id)}
+                className="w-full text-right p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-gray-700 font-medium"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-between">
+           <button onClick={handleBack} className="text-gray-400 hover:text-gray-600 flex items-center gap-1">
+             <ChevronRight size={20} /> חזרה
+           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
