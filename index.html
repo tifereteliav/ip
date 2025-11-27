@@ -1,10 +1,44 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronRight, ChevronLeft, Info, Check, Activity } from 'lucide-react';
 
 /**
  * Diabetes Pump Decision Support Tool (Hebrew) - Classic Clean Design
  * Based on Panther Program & Clinical Guidelines
+ * * Note: Icons are implemented inline to remove 'lucide-react' dependency for easier copy-pasting.
  */
+
+// --- ICONS (Inline SVG to avoid external dependencies) ---
+
+const Activity = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+  </svg>
+);
+
+const Check = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const Info = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+const ChevronRight = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
+const ChevronLeft = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
 
 // --- DATA & LOGIC ---
 
