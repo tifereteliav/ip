@@ -1,411 +1,443 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
+import { 
+  Heart, 
+  Smartphone, 
+  Activity, 
+  Settings, 
+  CheckCircle, 
+  AlertCircle, 
+  ChevronRight, 
+  ChevronLeft,
+  Droplet,
+  BatteryCharging
+} from 'lucide-react';
 
-// --- ICONS (Inline SVG) ---
+// --- DATA & LOGIC ---
 
-const ActivityIcon = ({ size = 24, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-  </svg>
-);
-
-const CheckIcon = ({ size = 24, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
-const InfoIcon = ({ size = 24, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="16" x2="12" y2="12" />
-    <line x1="12" y1="8" x2="12.01" y2="8" />
-  </svg>
-);
-
-const ChevronRightIcon = ({ size = 24, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="9 18 15 12 9 6" />
-  </svg>
-);
-
-const ChevronLeftIcon = ({ size = 24, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="15 18 9 12 15 6" />
-  </svg>
-);
-
-// --- DATA ---
-
-const PUMPS = [
-  {
-    id: '780g',
-    name: 'Medtronic 780G',
-    manufacturer: 'Medtronic',
-    features: {
-      tubeless: false,
-      smartphone_bolus: false,
-      auto_correction: 'high',
-      cgm_compatibility: ['guardian'],
-    },
-    description: 'מערכת עם אוטומציה חזקה לתיקון סוכר גבוה (כל 5 דקות). מתאימה למי שרוצה שהמשאבה תעבוד קשה בשבילו, אך דורשת שימוש בחיישן של מדטרוניק.',
-    reasons: []
+// Pump Definitions based on Panther File
+const PUMPS = {
+  medtronic: {
+    id: 'medtronic',
+    name: 'MiniMed 780G',
+    tagline: 'המתקנת האוטומטית',
+    description: 'מערכת עם תיקון אוטומטי אגרסיבי (כל 5 דקות). מתאימה למי שרוצה שהמשאבה תעבוד קשה בשבילו למניעת גבוהים.',
+    pros: [
+      'תיקון אוטומטי מלא (בזאל + בולוס) כל 5 דקות',
+      'מצויינת למניעת היפרגליקמיה (סוכר גבוה)',
+      'עובדת עם סנסור Guardian 4 / Simplera (לא דורש כיולים)'
+    ],
+    cons: [
+      'מחייבת שימוש בסנסור של מדטרוניק בלבד',
+      'פחות שליטה מהטלפון הנייד (בעיקר צפייה)',
+      'דורשת ספירת פחמימות'
+    ]
   },
-  {
-    id: 'tslim',
-    name: 'Tandem t:slim X2',
-    manufacturer: 'Tandem',
-    features: {
-      tubeless: false,
-      smartphone_bolus: true,
-      auto_correction: 'medium',
-      cgm_compatibility: ['dexcom', 'libre'],
-    },
-    description: 'משאבה פופולרית עם אלגוריתם Control-IQ. מתאימה מאוד למשתמשי דקסקום/ליברה שרוצים שליטה מדויקת, כולל מצב שינה ופעילות גופנית.',
-    reasons: []
+  tandem: {
+    id: 'tandem',
+    name: 'Tandem t:slim X2 / Mobi',
+    tagline: 'המתאימה אישית',
+    description: 'גמישות מלאה ושליטה. אלגוריתם Control-IQ שצופה קדימה ומצב שינה ייעודי.',
+    pros: [
+      'מגוון סנסורים (Dexcom, Libre 2+)',
+      'שליטה מלאה מהנייד (בדגם Mobi ואפליקציית t:connect)',
+      'מצב שינה (Sleep Mode) לשמירה הדוקה בלילה',
+      'קטנה מאוד (Mobi)'
+    ],
+    cons: [
+      'תיקון אוטומטי (בולוס) רק פעם בשעה (אך מגבירה בזאל)',
+      'דורשת ספירת פחמימות'
+    ]
   },
-  {
-    id: 'mobi',
-    name: 'Tandem Mobi',
-    manufacturer: 'Tandem',
-    features: {
-      tubeless: 'hybrid',
-      smartphone_bolus: true,
-      auto_correction: 'medium',
-      cgm_compatibility: ['dexcom', 'libre'],
-    },
-    description: 'הגרסה הקטנה והמודרנית של טנדם. נשלטת כמעט לחלוטין מהאייפון, עמידה למים וניתנת לענידה מגוונת (על הגוף או בכיס).',
-    reasons: []
-  },
-  {
-    id: 'omnipod5',
+  omnipod: {
+    id: 'omnipod',
     name: 'Omnipod 5',
-    manufacturer: 'Insulet',
-    features: {
-      tubeless: true,
-      smartphone_bolus: true,
-      auto_correction: 'low',
-      cgm_compatibility: ['dexcom', 'libre'],
-    },
-    description: 'משאבת טלאי (ללא צינורית). הבחירה המובילה לחופש מתנועה. האלגוריתם מתאים את הבזאל אך אינו נותן בולוסים אוטומטיים לתיקון.',
-    reasons: []
+    tagline: 'החופשייה מצינורות',
+    description: 'משאבת הפד (מדבקה) היחידה עם מערכת אוטומטית היברידית. ללא צינוריות כלל.',
+    pros: [
+      'ללא צינורית (Tubeless) - חופש תנועה מלא',
+      'אלגוריתם לומד ומתאים את עצמו בכל החלפת פוד',
+      'תואמת Dexcom G6/G7 ו-Libre 2+',
+      'אפליקציה מלאה לטלפונים תואמים'
+    ],
+    cons: [
+      'אין בולוסים אוטומטיים לתיקון (רק הגברת בזאל)',
+      'פחות אגרסיבית בתיקון סוכר גבוה מאוד'
+    ]
   },
-  {
+  ilet: {
     id: 'ilet',
     name: 'iLet Bionic Pancreas',
-    manufacturer: 'Beta Bionics',
-    features: {
-      tubeless: false,
-      smartphone_bolus: false,
-      auto_correction: 'high',
-      cgm_compatibility: ['dexcom', 'libre'],
-    },
-    description: 'ה"לבלב הביוני". המשאבה היחידה שלא דורשת ספירת פחמימות (רק הערכת גודל ארוחה). פתרון למי שרוצה מינימום התעסקות.',
-    reasons: []
+    tagline: 'אוטונומיה מלאה',
+    description: 'המערכת שעושה הכל לבד. אין צורך לספור פחמימות או לקבוע הגדרות בסיס.',
+    pros: [
+      'אין ספירת פחמימות! (רק "ארוחה רגילה/גדולה/קטנה")',
+      'לא דורשת הגדרת בזאל או רגישות',
+      'לומדת את המטופל באופן מלא'
+    ],
+    cons: [
+      'אי אפשר לשנות הגדרות ידנית אם רוצים',
+      'יעדי סוכר קבועים (רגיל, נמוך, גבוה)'
+    ]
+  },
+  twiist: {
+    id: 'twiist',
+    name: 'twiist (Tidepool)',
+    tagline: 'גמישות בבחירה',
+    description: 'מערכת המבוססת על אפליקציית Tidepool Loop, מאפשרת בחירה רחבה של סנסורים והגדרות.',
+    pros: [
+      'תמיכה רחבה בסנסורים (כולל Libre 3, Eversense)',
+      'שליטה מאפל ווטש (Apple Watch)',
+      'אלגוריתם המכוון לערך ספציפי ולא לטווח'
+    ],
+    cons: [
+      'מחייבת שימוש ב-iPhone (נכון להיום)',
+      'דורשת הבנה טכנולוגית מסוימת'
+    ]
   }
-];
+};
 
+// Questions & Scoring Logic
 const QUESTIONS = [
   {
     id: 'tubing',
-    text: 'עד כמה מפריעה לך המחשבה על צינורית שמחוברת לגוף?',
+    text: 'מהי ההעדפה שלך לגבי חיבור המשאבה לגוף?',
     options: [
-      { id: 'hate', label: 'מפריעה מאוד - אני חייב/ת בלי צינורית', scores: { omnipod5: 10, mobi: 3, tslim: -5, '780g': -5, ilet: -5 } },
-      { id: 'prefer_no', label: 'מעדיף/ה בלי, אבל אתפשר אם הביצועים טובים', scores: { omnipod5: 5, mobi: 2, tslim: 0, '780g': 0, ilet: 0 } },
-      { id: 'dont_care', label: 'לא מפריע לי / רגיל/ה לזה', scores: { omnipod5: 0, mobi: 0, tslim: 0, '780g': 0, ilet: 0 } },
+      {
+        text: 'חשוב לי מאוד להיות בלי צינורית בכלל (משאבת מדבקה)',
+        score: { omnipod: 10, medtronic: -2, tandem: -2, ilet: -2, twiist: -2 }
+      },
+      {
+        text: 'אין לי בעיה עם צינורית, כל עוד המשאבה חכמה',
+        score: { medtronic: 3, tandem: 3, ilet: 3, twiist: 3, omnipod: 0 }
+      },
+      {
+        text: 'מעדיף צינורית קצרה או משאבה זעירה שניתן להסתיר',
+        score: { tandem: 5, twiist: 3, medtronic: 1, omnipod: -1 } // Tandem Mobi specific
+      }
     ]
   },
   {
-    id: 'sensor',
-    text: 'באיזה חיישן (CGM) את/ה משתמש/ת או מעדיף/ה להשתמש?',
+    id: 'cgm',
+    text: 'באיזה מד סוכר רציף (סנסור) אתה משתמש כיום או מעדיף?',
     options: [
-      { id: 'dexcom', label: 'Dexcom (G6/G7)', scores: { tslim: 5, mobi: 5, omnipod5: 5, ilet: 5, '780g': -10 } },
-      { id: 'libre', label: 'Freestyle Libre (2+/3)', scores: { tslim: 5, mobi: 2, omnipod5: 5, ilet: 5, '780g': -10 } },
-      { id: 'guardian', label: 'Medtronic (Guardian/Simplera)', scores: { '780g': 10, tslim: -5, mobi: -5, omnipod5: -5, ilet: -5 } },
-      { id: 'none', label: 'אין העדפה / לא משתמש כרגע', scores: {} }
+      {
+        text: 'Dexcom G6 / G7',
+        score: { tandem: 5, omnipod: 5, ilet: 5, twiist: 5, medtronic: -10 }
+      },
+      {
+        text: 'Guardian 4 / Simplera',
+        score: { medtronic: 10, tandem: -5, omnipod: -5, ilet: -5, twiist: -5 }
+      },
+      {
+        text: 'Freestyle Libre 2 Plus / 3',
+        score: { tandem: 3, omnipod: 3, twiist: 5, ilet: 3, medtronic: -5 }
+      },
+      {
+        text: 'לא משנה לי / מוכן להחליף',
+        score: { medtronic: 2, tandem: 2, omnipod: 2, ilet: 2, twiist: 2 }
+      }
     ]
   },
   {
     id: 'control',
-    text: 'עד כמה חשוב לך לשלוט במשאבה ולתת בולוסים דרך הסמארטפון שלך?',
+    text: 'האם חשוב לך לשלוט על המשאבה (לתת בולוסים) מהטלפון הנייד?',
     options: [
-      { id: 'must', label: 'קריטי - אני רוצה הכל מהנייד', scores: { mobi: 8, tslim: 5, omnipod5: 4, '780g': -5, ilet: -2 } },
-      { id: 'nice', label: 'נחמד אם יש, לא חובה', scores: { mobi: 3, tslim: 2, omnipod5: 2, '780g': 0, ilet: 0 } },
-      { id: 'device', label: 'מעדיף/ה להשתמש במכשיר המשאבה עצמו', scores: { '780g': 2, tslim: 2, omnipod5: -2, mobi: -2, ilet: 2 } }
+      {
+        text: 'כן, זה קריטי לי. הטלפון הוא השלט שלי',
+        score: { tandem: 5, omnipod: 5, twiist: 5, medtronic: -2, ilet: 2 }
+      },
+      {
+        text: 'לא קריטי, מסתדר עם מסך המשאבה',
+        score: { medtronic: 3, tandem: 1, omnipod: 0, ilet: 1, twiist: 1 }
+      }
     ]
   },
   {
-    id: 'correction',
-    text: 'כשהסוכר גבוה, איך היית רוצה שהמשאבה תגיב?',
+    id: 'automation_style',
+    text: 'כמה "אגרסיבית" תרצה שהמערכת תהיה בתיקון סוכר גבוה?',
     options: [
-      { id: 'aggressive', label: 'שתתקן לבד ובאגרסיביות (בולוסים אוטומטיים)', scores: { '780g': 8, ilet: 6, tslim: 4, mobi: 4, omnipod5: -5 } },
-      { id: 'moderate', label: 'שתגביר את קצב הרקע (בזאל), אני אתן בולוס אם צריך', scores: { omnipod5: 5, tslim: 2, mobi: 2, '780g': -2, ilet: -2 } },
+      {
+        text: 'אגרסיבית מאוד. תן לי תיקונים אוטומטיים כל כמה דקות',
+        score: { medtronic: 8, ilet: 6, tandem: 2, omnipod: -3, twiist: 0 }
+      },
+      {
+        text: 'עדינה. תעלה את הרקע (בזאל) אבל אל תתן מנות גדולות לבד',
+        score: { omnipod: 5, tandem: 3, twiist: 3, medtronic: -2, ilet: -2 }
+      }
     ]
   },
   {
-    id: 'simplicity',
-    text: 'מה הגישה שלך לגבי ניהול הסוכרת וספירת פחמימות?',
+    id: 'carbs',
+    text: 'איך אתה מסתדר עם ספירת פחמימות?',
     options: [
-      { id: 'expert', label: 'אני רוצה לשלוט בהגדרות ולדייק כל פרמטר', scores: { tslim: 6, mobi: 6, omnipod5: 4, '780g': 2, ilet: -8 } },
-      { id: 'regular', label: 'אני סופר/ת פחמימות ומסתדר/ת עם הגדרות', scores: { tslim: 2, mobi: 2, '780g': 4, omnipod5: 4, ilet: 0 } },
-      { id: 'simple', label: 'אני שונא/ת לספור פחמימות - תנו לי משהו פשוט ("הערכה גסה")', scores: { ilet: 10, '780g': 2, tslim: -2, mobi: -2, omnipod5: 0 } }
-    ]
-  },
-  {
-    id: 'activity',
-    text: 'מה לגבי פעילות גופנית ומים?',
-    options: [
-      { id: 'swimmer', label: 'שוחה הרבה / נמצא במים', scores: { omnipod5: 6, mobi: 4, '780g': 4, ilet: 2, tslim: -4 } },
-      { id: 'contact', label: 'ספורט מגע / אינטנסיבי (צריך לנתק את המשאבה)', scores: { omnipod5: 5, tslim: 3, mobi: 3, '780g': 3, ilet: 2 } },
-      { id: 'regular', label: 'פעילות רגילה / חדר כושר', scores: {} }
+      {
+        text: 'אני שונא לספור. מעדיף רק להגיד "ארוחה רגילה/גדולה"',
+        score: { ilet: 15, medtronic: -2, tandem: -2, omnipod: -2, twiist: -2 }
+      },
+      {
+        text: 'אני סופר מדויק ורוצה שליטה על המינון',
+        score: { medtronic: 2, tandem: 5, omnipod: 5, twiist: 5, ilet: -5 }
+      }
     ]
   }
 ];
 
 // --- COMPONENTS ---
 
-const Header = () => (
-  <header className="bg-blue-600 text-white p-6 rounded-b-3xl shadow-lg mb-6">
-    <div className="flex items-center justify-between max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold">התאמת משאבת אינסולין</h1>
-        <p className="text-blue-100 text-sm opacity-90">כלי תומך החלטה למטופלי סוכרת סוג 1</p>
-      </div>
-      <ActivityIcon className="w-10 h-10 text-white opacity-80" />
-    </div>
-  </header>
-);
+export default function PumpMatcherApp() {
+  const [started, setStarted] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [scores, setScores] = useState({
+    medtronic: 0,
+    tandem: 0,
+    omnipod: 0,
+    ilet: 0,
+    twiist: 0
+  });
+  const [finished, setFinished] = useState(false);
+  const [history, setHistory] = useState([]); // Track user choices for summary
 
-const ResultCard = ({ pump, rank, reason }) => {
-  const isTop = rank === 1;
+  const handleStart = () => setStarted(true);
+
+  const handleAnswer = (option) => {
+    // 1. Update Scores
+    const newScores = { ...scores };
+    Object.keys(option.score).forEach(pumpKey => {
+      newScores[pumpKey] += option.score[pumpKey];
+    });
+    setScores(newScores);
+
+    // 2. Track History
+    const currentQ = QUESTIONS[currentQuestionIndex];
+    setHistory([...history, { question: currentQ.text, answer: option.text }]);
+
+    // 3. Move Next or Finish
+    if (currentQuestionIndex < QUESTIONS.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      setFinished(true);
+    }
+  };
+
+  const resetQuiz = () => {
+    setStarted(false);
+    setCurrentQuestionIndex(0);
+    setScores({ medtronic: 0, tandem: 0, omnipod: 0, ilet: 0, twiist: 0 });
+    setFinished(false);
+    setHistory([]);
+  };
+
+  if (!started) {
+    return <WelcomeScreen onStart={handleStart} />;
+  }
+
+  if (finished) {
+    return <ResultScreen scores={scores} history={history} onReset={resetQuiz} />;
+  }
+
   return (
-    <div className={`border-2 rounded-2xl p-6 mb-4 transition-all ${isTop ? 'border-blue-500 bg-blue-50 shadow-xl' : 'border-gray-200 bg-white shadow-sm'}`}>
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <span className={`text-xs font-bold px-3 py-1 rounded-full ${isTop ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}>
-            {isTop ? 'ההתאמה הטובה ביותר 🏆' : 'אפשרות שנייה חזקה'}
-          </span>
-          <h2 className="text-2xl font-bold text-gray-800 mt-2">{pump.name}</h2>
-          <p className="text-sm text-gray-500">{pump.manufacturer}</p>
-        </div>
-        {isTop && <div className="bg-blue-100 p-2 rounded-full"><CheckIcon className="w-6 h-6 text-blue-600" /></div>}
-      </div>
+    <QuestionScreen 
+      question={QUESTIONS[currentQuestionIndex]} 
+      total={QUESTIONS.length}
+      current={currentQuestionIndex + 1}
+      onAnswer={handleAnswer}
+    />
+  );
+}
 
-      <p className="text-gray-700 mb-4 leading-relaxed">
-        {pump.description}
-      </p>
-
-      {reason && reason.length > 0 && (
-        <div className="mb-4">
-          <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-            <InfoIcon size={16} />
-            למה זה מתאים לך?
-          </h3>
-          <ul className="space-y-2">
-            {reason.map((r, idx) => (
-              <li key={idx} className="flex items-start text-sm text-gray-700">
-                <span className="text-green-500 ml-2">✓</span>
-                {r}
-              </li>
-            ))}
-          </ul>
+// 1. Welcome Screen
+function WelcomeScreen({ onStart }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
+      <div className="bg-white max-w-lg w-full rounded-2xl shadow-xl p-8 text-center">
+        <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Activity className="w-10 h-10 text-blue-600" />
         </div>
-      )}
-      
-      <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
-          <div className="bg-white p-2 rounded border">
-              <span className="font-bold block text-gray-500">צינורית</span>
-              {pump.features.tubeless === true ? 'ללא (Tubeless)' : pump.features.tubeless === 'hybrid' ? 'היברידי (קצר)' : 'יש צינורית'}
-          </div>
-          <div className="bg-white p-2 rounded border">
-               <span className="font-bold block text-gray-500">חיישן</span>
-               {pump.features.cgm_compatibility.join(' / ')}
-          </div>
-          <div className="bg-white p-2 rounded border">
-               <span className="font-bold block text-gray-500">תיקון אוטומטי</span>
-               {pump.features.auto_correction === 'high' ? 'אגרסיבי (כל 5 דק)' : pump.features.auto_correction === 'medium' ? 'בינוני (פעם בשעה)' : 'עדין (בזאל בלבד)'}
-          </div>
-          <div className="bg-white p-2 rounded border">
-               <span className="font-bold block text-gray-500">שליטה מהנייד</span>
-               {pump.features.smartphone_bolus ? 'קיימת' : 'מוגבלת / אין'}
-          </div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">המצפן לבחירת משאבה</h1>
+        <p className="text-gray-600 mb-8 text-lg">
+          כלי עזר לקבלת החלטות למטופלי סוכרת סוג 1.
+          <br/>
+          ענה על 5 שאלות קצרות וקבל המלצה המותאמת לאורח החיים ולהעדפות הרפואיות שלך.
+        </p>
+        
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 text-sm text-yellow-800 text-right">
+          <strong>שים לב:</strong> הכלי נועד למטרות הסברה בלבד ואינו מחליף ייעוץ רפואי מקצועי.
+        </div>
+
+        <button 
+          onClick={onStart}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+        >
+          בוא נתחיל
+          <ChevronLeft className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );
-};
+}
 
-export default function PumpSelector() {
-  const [step, setStep] = useState(0); 
-  const [answers, setAnswers] = useState({});
-
-  const results = useMemo(() => {
-    if (step <= QUESTIONS.length) return null;
-
-    let scores = {};
-    let matchReasons = {};
-    
-    // Initialize
-    PUMPS.forEach(p => {
-      scores[p.id] = 0;
-      matchReasons[p.id] = [];
-    });
-
-    Object.entries(answers).forEach(([questionId, selectedOptionId]) => {
-      const question = QUESTIONS.find(q => q.id === questionId);
-      const option = question.options.find(o => o.id === selectedOptionId);
-      
-      if (option && option.scores) {
-        Object.entries(option.scores).forEach(([pumpId, score]) => {
-          if (scores[pumpId] !== undefined) {
-            scores[pumpId] += score;
-            
-            if (score >= 3) {
-               let simplifiedReason = "";
-               if (questionId === 'tubing') simplifiedReason = "העדפה למבנה המשאבה (צינורית/ללא)";
-               if (questionId === 'sensor') simplifiedReason = `תמיכה בחיישן ${option.label}`;
-               if (questionId === 'control') simplifiedReason = "אפשרויות שליטה מהטלפון";
-               if (questionId === 'correction') simplifiedReason = "סגנון התיקון האוטומטי המועדף עליך";
-               if (questionId === 'simplicity') simplifiedReason = "רמת המעורבות בניהול הסוכרת";
-               if (questionId === 'activity') simplifiedReason = "התאמה לפעילות גופנית ומים";
-
-               if(simplifiedReason && !matchReasons[pumpId].includes(simplifiedReason)) {
-                   matchReasons[pumpId].push(simplifiedReason);
-               }
-            }
-          }
-        });
-      }
-    });
-
-    return PUMPS.map(p => ({
-      ...p,
-      score: scores[p.id],
-      reasons: matchReasons[p.id]
-    })).sort((a, b) => b.score - a.score);
-  }, [step, answers]);
-
-  const handleStart = () => setStep(1);
-  
-  const handleAnswer = (optionId) => {
-    setAnswers(prev => ({ ...prev, [QUESTIONS[step - 1].id]: optionId }));
-    setStep(prev => prev + 1);
-  };
-
-  const handleBack = () => {
-    if (step > 1) setStep(prev => prev - 1);
-    else setStep(0);
-  };
-
-  const handleReset = () => {
-    setStep(0);
-    setAnswers({});
-  };
-
-  // --- RENDER ---
-
-  // 1. INTRO SCREEN
-  if (step === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 font-sans text-right" dir="rtl">
-        <Header />
-        <div className="max-w-2xl mx-auto p-6">
-          <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">ברוכים הבאים</h2>
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              בחירת משאבת אינסולין היא החלטה אישית חשובה. 
-              השוק מציע כיום טכנולוגיות מתקדמות (Medtronic, Tandem, Omnipod ועוד), 
-              ולכל אחת יתרונות שונים.
-              <br/><br/>
-              השאלון הקצר שלפניכם (כ-2 דקות) יעזור לנו להבין את אורח החיים וההעדפות שלכם,
-              ויציג המלצה מותאמת אישית על בסיס פרוטוקולים קליניים עדכניים.
-            </p>
-            
-            <div className="bg-blue-50 p-4 rounded-xl mb-8 text-sm text-blue-800 text-right">
-              <strong>שימו לב:</strong> הכלי הוא כלי עזר בלבד ואינו מחליף ייעוץ רפואי עם הצוות המטפל.
-            </div>
-
-            <button 
-              onClick={handleStart}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
-            >
-              התחל שאלון <ChevronLeftIcon />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. RESULTS SCREEN
-  if (step > QUESTIONS.length) {
-    const topMatch = results[0];
-    const secondMatch = results[1];
-
-    return (
-      <div className="min-h-screen bg-gray-50 font-sans text-right" dir="rtl">
-        <Header />
-        <div className="max-w-2xl mx-auto p-6 pb-20">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">ההמלצות שלך</h2>
-            <p className="text-gray-600">על סמך התשובות שלך, הנה המשאבות המתאימות ביותר:</p>
-          </div>
-
-          <ResultCard pump={topMatch} rank={1} reason={topMatch.reasons} />
-          
-          {secondMatch.score > -10 && (
-             <ResultCard pump={secondMatch} rank={2} reason={secondMatch.reasons} />
-          )}
-
-          <div className="mt-8 text-center">
-            <button 
-              onClick={handleReset}
-              className="text-gray-500 hover:text-blue-600 underline text-sm"
-            >
-              התחל מחדש
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 3. QUESTION SCREEN
-  const currentQuestion = QUESTIONS[step - 1];
-  const progress = ((step - 1) / QUESTIONS.length) * 100;
+// 2. Question Screen
+function QuestionScreen({ question, total, current, onAnswer }) {
+  const progress = (current / total) * 100;
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-right" dir="rtl">
-      <Header />
-      <div className="max-w-2xl mx-auto p-6">
-        
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4" dir="rtl">
+      <div className="w-full max-w-xl">
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mb-8">
-          <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+        <div className="mb-8">
+          <div className="flex justify-between text-sm text-gray-500 mb-2">
+            <span>שאלה {current} מתוך {total}</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <span className="text-blue-600 font-bold text-sm mb-2 block">שאלה {step} מתוך {QUESTIONS.length}</span>
-          <h2 className="text-xl font-bold text-gray-800 mb-6 leading-normal">
-            {currentQuestion.text}
+        {/* Question Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-8 leading-relaxed">
+            {question.text}
           </h2>
 
-          <div className="space-y-3">
-            {currentQuestion.options.map((option) => (
+          <div className="space-y-4">
+            {question.options.map((option, idx) => (
               <button
-                key={option.id}
-                onClick={() => handleAnswer(option.id)}
-                className="w-full text-right p-4 border-2 border-gray-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-gray-700 font-medium"
+                key={idx}
+                onClick={() => onAnswer(option)}
+                className="w-full text-right p-5 rounded-xl border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group flex items-center justify-between"
               >
-                {option.label}
+                <span className="text-lg text-gray-700 group-hover:text-blue-700 font-medium">
+                  {option.text}
+                </span>
+                <div className="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-blue-500 flex items-center justify-center">
+                   <div className="w-3 h-3 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </button>
             ))}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
 
-        <div className="mt-6 flex justify-between">
-           <button onClick={handleBack} className="text-gray-400 hover:text-gray-600 flex items-center gap-1">
-             <ChevronRightIcon size={20} /> חזרה
-           </button>
+// 3. Result Screen
+function ResultScreen({ scores, history, onReset }) {
+  // Sort pumps by score
+  const sortedPumps = Object.entries(scores)
+    .sort(([, a], [, b]) => b - a)
+    .map(([key]) => PUMPS[key]);
+
+  const topMatch = sortedPumps[0];
+  const runnerUp = sortedPumps[1];
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4" dir="rtl">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">התוצאות שלך</h1>
+
+        {/* Top Match Card */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 border-t-4 border-blue-600">
+          <div className="bg-blue-50 p-6 flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <span className="text-blue-600 font-bold uppercase tracking-wider text-sm">ההתאמה המובילה</span>
+              <h2 className="text-3xl font-extrabold text-gray-900 mt-1">{topMatch.name}</h2>
+              <p className="text-blue-800 mt-1 font-medium">{topMatch.tagline}</p>
+            </div>
+            <div className="bg-white p-3 rounded-full shadow-sm">
+              <CheckCircle className="w-8 h-8 text-green-500" />
+            </div>
+          </div>
+          
+          <div className="p-8">
+            <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+              {topMatch.description}
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-green-600" />
+                  למה זה מתאים לך?
+                </h3>
+                <ul className="space-y-2">
+                  {topMatch.pros.map((pro, i) => (
+                    <li key={i} className="flex items-start gap-2 text-gray-600 text-sm">
+                      <span className="mt-1.5 w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" />
+                      {pro}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-orange-500" />
+                  נקודות למחשבה
+                </h3>
+                <ul className="space-y-2">
+                  {topMatch.cons.map((con, i) => (
+                    <li key={i} className="flex items-start gap-2 text-gray-600 text-sm">
+                      <span className="mt-1.5 w-1.5 h-1.5 bg-orange-400 rounded-full flex-shrink-0" />
+                      {con}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Runner Up */}
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 opacity-90">
+           <div className="flex items-center gap-3 mb-4">
+             <div className="bg-gray-100 p-2 rounded-lg">
+               <Settings className="w-6 h-6 text-gray-600" />
+             </div>
+             <div>
+               <h3 className="text-xl font-bold text-gray-800">אפשרות שנייה: {runnerUp.name}</h3>
+               <p className="text-sm text-gray-500">{runnerUp.tagline}</p>
+             </div>
+           </div>
+           <p className="text-gray-600 text-sm mb-4">{runnerUp.description}</p>
+           <div className="text-sm text-blue-600 font-medium cursor-pointer hover:underline">
+             + יתרון מרכזי: {runnerUp.pros[0]}
+           </div>
+        </div>
+
+        {/* Summary of choices */}
+        <div className="bg-gray-100 rounded-xl p-6 mb-8 text-sm">
+          <h4 className="font-bold text-gray-700 mb-4">סיכום התשובות שלך:</h4>
+          <ul className="space-y-2">
+            {history.map((item, i) => (
+              <li key={i} className="flex justify-between border-b border-gray-200 pb-2 last:border-0">
+                <span className="text-gray-500">{item.question}</span>
+                <span className="text-gray-800 font-medium text-left mr-4">{item.answer}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <button 
+            onClick={() => window.print()}
+            className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-50 transition-colors"
+          >
+            הדפס / שמור כ-PDF
+          </button>
+          
+          <button 
+            onClick={onReset}
+            className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors"
+          >
+            התחל מחדש
+          </button>
+        </div>
+
       </div>
     </div>
   );
