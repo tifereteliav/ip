@@ -1,0 +1,282 @@
+Below is a practical, clinic-ready framework for designing a questionnaire / digital decision-support app that helps adults with type 1 diabetes choose between the Medtronic 780G, Tandem t:slim X2/Mobi, and Omnipod 5.
+I integrate the comparison information from the uploaded Panther tool 
+
+compare pumps panther tool
+
+ and common clinical considerations used in pump-matching.
+
+1. DESIGN PRINCIPLES
+
+Your questionnaire/app should:
+
+⭐ Be short (5–7 minutes)
+
+Patients lose engagement in long surveys. Use branching logic so they only see relevant questions.
+
+⭐ Use plain language
+
+Avoid algorithm jargon. Provide tooltips or short explanations.
+
+⭐ Match patient needs → device features
+
+Each answer should directly map to characteristics of pumps (e.g., tubeless preference → favors Omnipod 5).
+
+⭐ End with a personalized recommendation
+
+Either:
+
+Top 1–2 pump options with rationale, or
+
+A “pump compatibility profile” summarizing fit across domains.
+
+2. CORE DOMAINS TO INCLUDE
+
+From clinical practice and the Panther comparison tool, these are the domains that matter most:
+
+1️⃣ Lifestyle & Wearability Preferences
+
+Tubed vs tubeless
+
+Comfort wearing a device on body
+
+Ability/willingness to carry a phone
+
+Sports/exercise style
+
+Travel, swimming, work environment
+
+2️⃣ Tech Preferences & Phone Ecosystem
+
+iPhone vs Android
+
+Desire to bolus from phone
+
+Comfort with app-based operation
+
+Need for remote monitoring (caregivers, partners)
+
+3️⃣ Glucose Management Style
+
+Importance of automated boluses
+
+Preference for adjustable targets
+
+Desire to tune settings (I:C, CF, basal profiles)
+
+Use of sleep/activity modes
+
+4️⃣ Current CGM Preference
+
+Dexcom (G6/G7)
+
+Guardian 4
+
+Glooko/Discover/Tidepool/Beta Bionics data ecosystem
+
+5️⃣ Hypoglycemia/hyperglycemia concerns
+
+Fear of lows
+
+Need for aggressive correction algorithms
+
+Need for strong automation during meals/overnight
+
+6️⃣ Insurance / cost / availability
+
+(Optional in app; essential in clinic workflow.)
+
+3. RECOMMENDED QUESTIONNAIRE STRUCTURE
+
+Below is a ready-to-use template you can convert into an app, Google Form, or EMR-integrated form.
+
+SECTION A — DEVICE WEAR & LIFESTYLE
+
+1. Do you prefer a pump with or without tubing?
+
+No tubing (patch pump) → favors Omnipod 5
+
+Tubing is okay → allows t:slim / Mobi / Medtronic 780G
+
+2. How comfortable are you wearing a device directly on the skin?
+
+Very comfortable → any pump
+
+Prefer a separate device in pocket → t:slim / Mobi / 780G
+
+3. Do you prefer dosing insulin directly from your phone?
+
+Yes → strongly favors t:slim/Mobi (iPhone), Omnipod 5
+
+No → any pump
+
+4. What type of activities do you do most often?
+(check all)
+
+High-intensity sports
+
+Swimming/water sports
+
+Frequent travel
+
+Sedentary
+Logic:
+
+Heavy sports → Omnipod 5 often preferred (no tubing).
+
+Frequent travel → all usable, but Omnipod/t:slim easier for airport security.
+
+SECTION B — CGM PREFERENCES
+
+5. Which CGM do you currently use or prefer?
+
+Dexcom G6/G7 → t:slim X2/Mobi, Omnipod 5, iLet
+
+Guardian 4 → Medtronic 780G only
+
+Libre 2+ or Libre 3+ → t:slim, Omnipod (limited), Twiist
+(mapping per chart) 
+
+compare pumps panther tool
+
+6. Do you want to share CGM/pump data with someone (partner/parent)?
+
+Yes → all except Libre-based systems
+
+Need pump+CGM remote view → 780G, t:slim/Mobi, Omnipod 5
+
+SECTION C — AUTOMATION STYLE
+
+7. How important is it that the pump gives automated correction boluses?
+
+Very important → Medtronic 780G (every 5 min), t:slim (1/hr)
+
+Not important → Omnipod 5 (no auto boluses)
+
+8. Do you prefer to adjust and customize settings (I:C, correction factor, active insulin time)?
+
+Yes → t:slim, Omnipod 5
+
+No, prefer hands-off → Medtronic 780G (limited adjustment)
+
+9. How tight do you want your glucose target(s)?
+
+100–112 mg/dL range → Medtronic 780G, t:slim
+
+Adjustable depending on time of day → t:slim, Omnipod 5
+
+Single fixed target → Omnipod 5
+
+(mapping per Panther chart) 
+
+compare pumps panther tool
+
+SECTION D — HYPOGLYCEMIA/HYPERGLYCEMIA RISK
+
+10. How concerned are you about low blood sugars?
+
+Very → pumps with strong low-prevention behavior
+
+t:slim (Control-IQ sleep mode)
+
+Omnipod 5 (aggressive suspend)
+
+11. How important is the ability to aggressively correct highs?
+
+Very → Medtronic 780G (frequent auto-corrections)
+
+SECTION E — PHONE & DATA USE
+
+12. What phone do you use?
+
+iPhone → compatible with all except Medtronic mobile bolus limitation in some regions
+
+Android → Omnipod 5 supports fewer Android models; t:slim/Mobi iOS only
+
+13. Do you want to be able to see pump and sensor data together on your phone?
+
+Yes → t:slim/Mobi, Omnipod 5, Medtronic 780G, Twiist
+
+SECTION F — PATIENT PRIORITIES (RANKING)
+
+Ask patient to rank the following from most to least important:
+
+Maximum automation
+
+Least visible on body
+
+No tubing
+
+Strong correction of highs
+
+Best low-glucose prevention
+
+Most customizable settings
+
+Phone-based control
+
+Lowest burden / simplest workflow
+
+The app can weigh responses and generate a profile.
+
+4. HOW TO SCORE OR MATCH RESPONSES
+Example weighting model (simple)
+Feature	Strongly Favors	Moderate	Not Ideal
+Tubeless	Omnipod 5	–	t:slim, Medtronic 780G
+Auto-corrections	780G	t:slim	Omnipod 5
+iPhone bolus from phone	t:slim/Mobi	Omnipod 5	780G
+Dexcom loyalty	t:slim/Mobi, Omnipod 5	–	780G
+Want simplest workflow	Omnipod 5	780G	t:slim
+Need tight overnight control	t:slim sleep mode	780G	Omnipod 5
+
+Your app can tally these behind the scenes and display, for example:
+
+Your Best Fit: Tandem t:slim X2
+
+Why:
+
+You prefer Dexcom
+
+You want adjustable targets
+
+You want remote bolusing from phone
+
+You value strong overnight protection
+
+You prefer more control over pump settings
+
+5. OPTIONAL: CLINICIAN MODE
+
+Allow clinicians to enter additional data:
+
+A1C
+
+TIR
+
+Hypoglycemia unawareness
+
+Carbohydrate counting accuracy
+
+Occupation (e.g., pump visibility concerns)
+
+The system can adjust recommendations—for example, poor carb counting may favor pumps with more automated correction (780G).
+
+6. FINAL OUTPUT EXAMPLE (AUTO-GENERATED)
+
+Top Recommendation: Omnipod 5
+• You prefer a tubeless system
+• You want phone-based control
+• You engage in regular sports
+• You use Dexcom G6/G7
+• You prefer simple automation without needing to adjust settings
+
+Secondary Option: t:slim X2
+• Good if you want stronger auto-corrections or sleep mode
+
+If you want, I can:
+
+✅ Build a fully written questionnaire verbatim
+✅ Convert this into a scorable digital flowchart
+✅ Create JSON logic for a web/app developer
+✅ Draft patient-friendly explanations for each question
+
+Would you like the complete questionnaire text, the algorithm scoring logic, or a prototype layout for an app?
