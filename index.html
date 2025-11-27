@@ -1,26 +1,20 @@
 import React, { useState, useMemo } from 'react';
 
-/**
- * Diabetes Pump Decision Support Tool (Hebrew) - Classic Clean Design
- * Based on Panther Program & Clinical Guidelines
- * * Note: Icons are implemented inline to remove 'lucide-react' dependency for easier copy-pasting.
- */
+// --- ICONS (Inline SVG) ---
 
-// --- ICONS (Inline SVG to avoid external dependencies) ---
-
-const Activity = ({ size = 24, className = "" }) => (
+const ActivityIcon = ({ size = 24, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
   </svg>
 );
 
-const Check = ({ size = 24, className = "" }) => (
+const CheckIcon = ({ size = 24, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 
-const Info = ({ size = 24, className = "" }) => (
+const InfoIcon = ({ size = 24, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <circle cx="12" cy="12" r="10" />
     <line x1="12" y1="16" x2="12" y2="12" />
@@ -28,19 +22,19 @@ const Info = ({ size = 24, className = "" }) => (
   </svg>
 );
 
-const ChevronRight = ({ size = 24, className = "" }) => (
+const ChevronRightIcon = ({ size = 24, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polyline points="9 18 15 12 9 6" />
   </svg>
 );
 
-const ChevronLeft = ({ size = 24, className = "" }) => (
+const ChevronLeftIcon = ({ size = 24, className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polyline points="15 18 9 12 15 6" />
   </svg>
 );
 
-// --- DATA & LOGIC ---
+// --- DATA ---
 
 const PUMPS = [
   {
@@ -52,23 +46,9 @@ const PUMPS = [
       smartphone_bolus: false,
       auto_correction: 'high',
       cgm_compatibility: ['guardian'],
-      simplicity: 'medium',
-      waterproof: true,
-      target_adjust: 'limited',
-      fear_of_lows: 'high',
-      algorithm_type: 'PID/Advanced',
     },
     description: 'מערכת עם אוטומציה חזקה לתיקון סוכר גבוה (כל 5 דקות). מתאימה למי שרוצה שהמשאבה תעבוד קשה בשבילו, אך דורשת שימוש בחיישן של מדטרוניק.',
-    pros: [
-      'תיקונים אוטומטיים אגרסיביים כל 5 דקות',
-      'מצוינת בהורדת סוכר גבוה',
-      'מערכת סגורה מלאה עם חיישן תואם'
-    ],
-    cons: [
-      'מחייבת שימוש בחיישן גארדיאן (או Simplera בעתיד)',
-      'יש צורך בצינורית',
-      'אין שליטה מלאה מהטלפון (רק צפייה)'
-    ]
+    reasons: []
   },
   {
     id: 'tslim',
@@ -79,23 +59,9 @@ const PUMPS = [
       smartphone_bolus: true,
       auto_correction: 'medium',
       cgm_compatibility: ['dexcom', 'libre'],
-      simplicity: 'medium',
-      waterproof: false,
-      target_adjust: 'high',
-      fear_of_lows: 'very_high',
-      algorithm_type: 'Control-IQ',
     },
     description: 'משאבה פופולרית עם אלגוריתם Control-IQ. מתאימה מאוד למשתמשי דקסקום/ליברה שרוצים שליטה מדויקת, כולל מצב שינה ופעילות גופנית.',
-    pros: [
-      'אינטגרציה מעולה עם Dexcom ו-Libre',
-      'אפשרות למתן בולוס מהטלפון',
-      'מצבי "שינה" ו"פעילות" ייעודיים'
-    ],
-    cons: [
-      'יש צורך בצינורית',
-      'דורשת טעינה (סוללה נטענת)',
-      'תיקון אוטומטי (בולוס) רק פעם בשעה'
-    ]
+    reasons: []
   },
   {
     id: 'mobi',
@@ -106,23 +72,9 @@ const PUMPS = [
       smartphone_bolus: true,
       auto_correction: 'medium',
       cgm_compatibility: ['dexcom', 'libre'],
-      simplicity: 'medium',
-      waterproof: true,
-      target_adjust: 'high',
-      fear_of_lows: 'very_high',
-      algorithm_type: 'Control-IQ',
     },
     description: 'הגרסה הקטנה והמודרנית של טנדם. נשלטת כמעט לחלוטין מהאייפון, עמידה למים וניתנת לענידה מגוונת (על הגוף או בכיס).',
-    pros: [
-      'קטנה מאוד (כחצי מגודל ה-t:slim)',
-      'שליטה מלאה מהאייפון',
-      'עמידה למים'
-    ],
-    cons: [
-      'תלות בסמארטפון לתפעול מלא',
-      'עדיין יש צינורית (גם אם קצרה)',
-      'תואמת כרגע בעיקר לאייפון'
-    ]
+    reasons: []
   },
   {
     id: 'omnipod5',
@@ -133,23 +85,9 @@ const PUMPS = [
       smartphone_bolus: true,
       auto_correction: 'low',
       cgm_compatibility: ['dexcom', 'libre'],
-      simplicity: 'high',
-      waterproof: true,
-      target_adjust: 'medium',
-      fear_of_lows: 'medium',
-      algorithm_type: 'SmartAdjust',
     },
     description: 'משאבת טלאי (ללא צינורית). הבחירה המובילה לחופש מתנועה. האלגוריתם מתאים את הבזאל אך אינו נותן בולוסים אוטומטיים לתיקון.',
-    pros: [
-      'ללא צינורית (Tubeless) - חופש תנועה',
-      'מתאימה מאוד לילדים ופעילות ספורטיבית',
-      'הכנסה אוטומטית (ללא מחט נראית לעין)'
-    ],
-    cons: [
-      'אין בולוסים אוטומטיים לתיקון (רק שינוי בזאל)',
-      'פוד חד פעמי (פסולת סביבתית)',
-      'מחייבת נשיאת שלט (או טלפון תואם אנדרואיד)'
-    ]
+    reasons: []
   },
   {
     id: 'ilet',
@@ -160,23 +98,9 @@ const PUMPS = [
       smartphone_bolus: false,
       auto_correction: 'high',
       cgm_compatibility: ['dexcom', 'libre'],
-      simplicity: 'very_high',
-      waterproof: true,
-      target_adjust: 'none',
-      fear_of_lows: 'medium',
-      algorithm_type: 'Autonomous',
     },
     description: 'ה"לבלב הביוני". המשאבה היחידה שלא דורשת ספירת פחמימות (רק הערכת גודל ארוחה). פתרון למי שרוצה מינימום התעסקות.',
-    pros: [
-      'אין צורך לספור פחמימות (רק גודל ארוחה)',
-      'אין הגדרות בזאל או יחס אינסולין',
-      'פשוטה מאוד לתפעול'
-    ],
-    cons: [
-      'פחות שליטה למשתמש המנוסה',
-      'מטרות סוכר גבוהות יותר מחלק מהמתחרים',
-      'יש צינורית'
-    ]
+    reasons: []
   }
 ];
 
@@ -246,7 +170,7 @@ const Header = () => (
         <h1 className="text-2xl font-bold">התאמת משאבת אינסולין</h1>
         <p className="text-blue-100 text-sm opacity-90">כלי תומך החלטה למטופלי סוכרת סוג 1</p>
       </div>
-      <Activity className="w-10 h-10 text-white opacity-80" />
+      <ActivityIcon className="w-10 h-10 text-white opacity-80" />
     </div>
   </header>
 );
@@ -263,27 +187,29 @@ const ResultCard = ({ pump, rank, reason }) => {
           <h2 className="text-2xl font-bold text-gray-800 mt-2">{pump.name}</h2>
           <p className="text-sm text-gray-500">{pump.manufacturer}</p>
         </div>
-        {isTop && <div className="bg-blue-100 p-2 rounded-full"><Check className="w-6 h-6 text-blue-600" /></div>}
+        {isTop && <div className="bg-blue-100 p-2 rounded-full"><CheckIcon className="w-6 h-6 text-blue-600" /></div>}
       </div>
 
       <p className="text-gray-700 mb-4 leading-relaxed">
         {pump.description}
       </p>
 
-      <div className="mb-4">
-        <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-          <Info size={16} />
-          למה זה מתאים לך?
-        </h3>
-        <ul className="space-y-2">
-          {reason.map((r, idx) => (
-            <li key={idx} className="flex items-start text-sm text-gray-700">
-              <span className="text-green-500 ml-2">✓</span>
-              {r}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {reason && reason.length > 0 && (
+        <div className="mb-4">
+          <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            <InfoIcon size={16} />
+            למה זה מתאים לך?
+          </h3>
+          <ul className="space-y-2">
+            {reason.map((r, idx) => (
+              <li key={idx} className="flex items-start text-sm text-gray-700">
+                <span className="text-green-500 ml-2">✓</span>
+                {r}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       
       <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
           <div className="bg-white p-2 rounded border">
@@ -315,9 +241,13 @@ export default function PumpSelector() {
     if (step <= QUESTIONS.length) return null;
 
     let scores = {};
-    PUMPS.forEach(p => scores[p.id] = 0);
-    let matchReasons = {}; 
-    PUMPS.forEach(p => matchReasons[p.id] = []);
+    let matchReasons = {};
+    
+    // Initialize
+    PUMPS.forEach(p => {
+      scores[p.id] = 0;
+      matchReasons[p.id] = [];
+    });
 
     Object.entries(answers).forEach(([questionId, selectedOptionId]) => {
       const question = QUESTIONS.find(q => q.id === questionId);
@@ -397,7 +327,7 @@ export default function PumpSelector() {
               onClick={handleStart}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
             >
-              התחל שאלון <ChevronLeft />
+              התחל שאלון <ChevronLeftIcon />
             </button>
           </div>
         </div>
@@ -419,10 +349,10 @@ export default function PumpSelector() {
             <p className="text-gray-600">על סמך התשובות שלך, הנה המשאבות המתאימות ביותר:</p>
           </div>
 
-          <ResultCard pump={topMatch} rank={1} reason={topMatch.reasons.length > 0 ? topMatch.reasons : ['התאמה כללית טובה למכלול התשובות שלך']} />
+          <ResultCard pump={topMatch} rank={1} reason={topMatch.reasons} />
           
           {secondMatch.score > -10 && (
-             <ResultCard pump={secondMatch} rank={2} reason={secondMatch.reasons.length > 0 ? secondMatch.reasons : ['אלטרנטיבה טובה עם תכונות דומות']} />
+             <ResultCard pump={secondMatch} rank={2} reason={secondMatch.reasons} />
           )}
 
           <div className="mt-8 text-center">
@@ -473,7 +403,7 @@ export default function PumpSelector() {
 
         <div className="mt-6 flex justify-between">
            <button onClick={handleBack} className="text-gray-400 hover:text-gray-600 flex items-center gap-1">
-             <ChevronRight size={20} /> חזרה
+             <ChevronRightIcon size={20} /> חזרה
            </button>
         </div>
       </div>
