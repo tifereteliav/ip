@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>המצפן לבחירת משאבה</title>
+    <title>PumpSelector - בחירת משאבת אינסולין</title>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Google Fonts (Optional for better Hebrew typography) -->
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <style>
         body {
             font-family: 'Heebo', sans-serif;
+            background-color: #f0f9ff;
         }
         .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeIn 0.5s ease-in-out;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -27,440 +35,712 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen text-gray-800">
+<body>
+    <div id="root"></div>
 
-    <!-- App Container -->
-    <div id="app" class="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center justify-center">
-        
-        <!-- Screen 1: Welcome -->
-        <div id="welcome-screen" class="bg-white max-w-lg w-full rounded-2xl shadow-xl p-8 text-center fade-in">
-            <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i data-lucide="activity" class="w-10 h-10 text-blue-600"></i>
-            </div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-4">המצפן לבחירת משאבה</h1>
-            <p class="text-gray-600 mb-8 text-lg">
-                כלי עזר לקבלת החלטות למטופלי סוכרת סוג 1.
-                <br/>
-                ענה על 5 שאלות קצרות וקבל המלצה המותאמת לאורח החיים ולהעדפות הרפואיות שלך.
-            </p>
-            
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 text-sm text-yellow-800 text-right">
-                <strong>שים לב:</strong> הכלי נועד למטרות הסברה בלבד ואינו מחליף ייעוץ רפואי מקצועי.
-            </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-            <button onclick="startQuiz()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
-                בוא נתחיל
-                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-            </button>
-        </div>
+        // --- Data Definitions ---
 
-        <!-- Screen 2: Question -->
-        <div id="question-screen" class="hidden w-full max-w-xl flex-col items-center">
-            <!-- Progress Bar -->
-            <div class="w-full mb-8">
-                <div class="flex justify-between text-sm text-gray-500 mb-2">
-                    <span id="progress-text">שאלה 1 מתוך 5</span>
-                    <span id="progress-percent">0%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <!-- Question Card -->
-            <div class="bg-white rounded-2xl shadow-lg p-8 w-full fade-in">
-                <h2 id="question-text" class="text-2xl font-bold text-gray-800 mb-8 leading-relaxed">
-                    <!-- Question goes here -->
-                </h2>
-
-                <div id="options-container" class="space-y-4">
-                    <!-- Options go here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Screen 3: Results -->
-        <div id="result-screen" class="hidden max-w-3xl w-full mx-auto fade-in">
-            <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">התוצאות שלך</h1>
-
-            <!-- Top Match Card -->
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 border-t-4 border-blue-600">
-                <div class="bg-blue-50 p-6 flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                        <span class="text-blue-600 font-bold uppercase tracking-wider text-sm">ההתאמה המובילה</span>
-                        <h2 id="result-name" class="text-3xl font-extrabold text-gray-900 mt-1"></h2>
-                        <p id="result-tagline" class="text-blue-800 mt-1 font-medium"></p>
-                    </div>
-                    <div class="bg-white p-3 rounded-full shadow-sm">
-                        <i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>
-                    </div>
-                </div>
-                
-                <div class="p-8">
-                    <p id="result-description" class="text-lg text-gray-700 mb-6 leading-relaxed"></p>
-                    
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div>
-                            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                <i data-lucide="heart" class="w-5 h-5 text-green-600"></i>
-                                למה זה מתאים לך?
-                            </h3>
-                            <ul id="result-pros" class="space-y-2"></ul>
-                        </div>
-
-                        <div>
-                            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                <i data-lucide="alert-circle" class="w-5 h-5 text-orange-500"></i>
-                                נקודות למחשבה
-                            </h3>
-                            <ul id="result-cons" class="space-y-2"></ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Runner Up -->
-            <div class="bg-white rounded-2xl shadow-md p-6 mb-8 opacity-90">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-gray-100 p-2 rounded-lg">
-                        <i data-lucide="settings" class="w-6 h-6 text-gray-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">אפשרות שנייה: <span id="runner-up-name"></span></h3>
-                        <p id="runner-up-tagline" class="text-sm text-gray-500"></p>
-                    </div>
-                </div>
-                <p id="runner-up-desc" class="text-gray-600 text-sm mb-4"></p>
-                <div class="text-sm text-blue-600 font-medium">
-                    + יתרון מרכזי: <span id="runner-up-pro"></span>
-                </div>
-            </div>
-
-            <!-- Summary -->
-            <div class="bg-gray-100 rounded-xl p-6 mb-8 text-sm">
-                <h4 class="font-bold text-gray-700 mb-4">סיכום התשובות שלך:</h4>
-                <ul id="history-list" class="space-y-2"></ul>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                <button onclick="window.print()" class="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-50 transition-colors">
-                    הדפס / שמור כ-PDF
-                </button>
-                
-                <button onclick="resetQuiz()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors">
-                    התחל מחדש
-                </button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Logic Script -->
-    <script>
-        // --- DATA ---
-        const PUMPS = {
-            medtronic: {
-                id: 'medtronic',
-                name: 'MiniMed 780G',
-                tagline: 'המתקנת האוטומטית',
-                description: 'מערכת עם תיקון אוטומטי אגרסיבי (כל 5 דקות). מתאימה למי שרוצה שהמשאבה תעבוד קשה בשבילו למניעת גבוהים.',
-                pros: [
-                    'תיקון אוטומטי מלא (בזאל + בולוס) כל 5 דקות',
-                    'מצויינת למניעת היפרגליקמיה (סוכר גבוה)',
-                    'עובדת עם סנסור Guardian 4 / Simplera (לא דורש כיולים)'
-                ],
-                cons: [
-                    'מחייבת שימוש בסנסור של מדטרוניק בלבד',
-                    'פחות שליטה מהטלפון הנייד (בעיקר צפייה)',
-                    'דורשת ספירת פחמימות'
-                ]
-            },
-            tandem: {
+        const pumpsData = [
+            {
                 id: 'tandem',
-                name: 'Tandem t:slim X2 / Mobi',
-                tagline: 'המתאימה אישית',
-                description: 'גמישות מלאה ושליטה. אלגוריתם Control-IQ שצופה קדימה ומצב שינה ייעודי.',
-                pros: [
-                    'מגוון סנסורים (Dexcom, Libre 2+)',
-                    'שליטה מלאה מהנייד (בדגם Mobi ואפליקציית t:connect)',
-                    'מצב שינה (Sleep Mode) לשמירה הדוקה בלילה',
-                    'קטנה מאוד (Mobi)'
-                ],
-                cons: [
-                    'תיקון אוטומטי (בולוס) רק פעם בשעה (אך מגבירה בזאל)',
-                    'דורשת ספירת פחמימות'
-                ]
+                name: 'Tandem t:slim X2',
+                type: 'tube',
+                minAge: 6,
+                hasHebrew: false,
+                hasSplitBolus: true,
+                hasAppControl: true,
+                sensor: 'Dexcom G6/G7',
+                features: 'משאבה היברידית קטנה וחכמה עם טכנולוגיית Control-IQ.',
+                description: 'משאבת ה-Tandem t:slim X2 היא משאבה היברידית מתקדמת במעגל סגור. היא מתממשקת בצורה חלקה עם סנסור Dexcom, מאפשרת מתן בולוס ישירות מהטלפון הנייד (במכשירים תומכים) ובעלת גודל קומפקטי במיוחד.',
+                pros: ['שליטה מהנייד (אפליקציה)', 'קטנה ב-38% ממשאבות אחרות', 'בולוס מפוצל (ייחודי לטנדם)', 'סוללה נטענת', 'עדכון תוכנה מהבית'],
+                cons: ['דורשת חיבור פיזי למחשב לעדכונים', 'יש צינורית', 'ממשק באנגלית בלבד'],
+                matchTags: ['control_app', 'small_size', 'split_bolus', 'rechargeable', 'tech_savvy', 'tube', 'family_share']
             },
-            omnipod: {
+            {
+                id: 'medtronic',
+                name: 'Medtronic MiniMed 780G',
+                type: 'tube',
+                minAge: 7,
+                hasHebrew: true,
+                hasSplitBolus: false, // According to user data provided
+                hasAppControl: false, // Limited control compared to Tandem's bolus via app feature in user data context
+                sensor: 'Guardian 4',
+                features: 'מערכת אוטומטית חזקה עם ממשק מלא בעברית.',
+                description: 'מערכת ה-MiniMed 780G ידועה ביכולתה לתקן רמות סוכר גבוהות באופן אוטומטי כל 5 דקות, מה שמספק "רשת ביטחון" מצוינת למי שמתקשה בספירת פחמימות מדויקת. המשאבה עמידה למים ובעלת ממשק בעברית.',
+                pros: ['ממשק מלא בעברית', 'תיקון אוטומטי אגרסיבי (טוב למתקשים בספירה)', 'סט עירוי עד 7 ימים', 'סוללת AA (זמינות גבוהה)', 'עמידה למים'],
+                cons: ['דורשת דקירה אחת לכניסה ל-SmartGuard', 'אין בולוס מפוצל (לפי הנתונים)', 'עיצוב מעט גדול יותר'],
+                matchTags: ['hebrew', 'carb_struggle', 'waterproof', 'battery_aa', 'tube']
+            },
+            {
                 id: 'omnipod',
-                name: 'Omnipod 5',
-                tagline: 'החופשייה מצינורות',
-                description: 'משאבת הפד (מדבקה) היחידה עם מערכת אוטומטית היברידית. ללא צינוריות כלל.',
-                pros: [
-                    'ללא צינורית (Tubeless) - חופש תנועה מלא',
-                    'אלגוריתם לומד ומתאים את עצמו בכל החלפת פוד',
-                    'תואמת Dexcom G6/G7 ו-Libre 2+',
-                    'אפליקציה מלאה לטלפונים תואמים'
-                ],
-                cons: [
-                    'אין בולוסים אוטומטיים לתיקון (רק הגברת בזאל)',
-                    'פחות אגרסיבית בתיקון סוכר גבוה מאוד'
-                ]
-            },
-            ilet: {
-                id: 'ilet',
-                name: 'iLet Bionic Pancreas',
-                tagline: 'אוטונומיה מלאה',
-                description: 'המערכת שעושה הכל לבד. אין צורך לספור פחמימות או לקבוע הגדרות בסיס.',
-                pros: [
-                    'אין ספירת פחמימות! (רק "ארוחה רגילה/גדולה/קטנה")',
-                    'לא דורשת הגדרת בזאל או רגישות',
-                    'לומדת את המטופל באופן מלא'
-                ],
-                cons: [
-                    'אי אפשר לשנות הגדרות ידנית אם רוצים',
-                    'יעדי סוכר קבועים (רגיל, נמוך, גבוה)'
-                ]
-            },
-            twiist: {
-                id: 'twiist',
-                name: 'twiist (Tidepool)',
-                tagline: 'גמישות בבחירה',
-                description: 'מערכת המבוססת על אפליקציית Tidepool Loop, מאפשרת בחירה רחבה של סנסורים והגדרות.',
-                pros: [
-                    'תמיכה רחבה בסנסורים (כולל Libre 3, Eversense)',
-                    'שליטה מאפל ווטש (Apple Watch)',
-                    'אלגוריתם המכוון לערך ספציפי ולא לטווח'
-                ],
-                cons: [
-                    'מחייבת שימוש ב-iPhone (נכון להיום)',
-                    'דורשת הבנה טכנולוגית מסוימת'
-                ]
-            }
-        };
-
-        const QUESTIONS = [
-            {
-                id: 'tubing',
-                text: 'מהי ההעדפה שלך לגבי חיבור המשאבה לגוף?',
-                options: [
-                    {
-                        text: 'חשוב לי מאוד להיות בלי צינורית בכלל (משאבת מדבקה)',
-                        score: { omnipod: 10, medtronic: -2, tandem: -2, ilet: -2, twiist: -2 }
-                    },
-                    {
-                        text: 'אין לי בעיה עם צינורית, כל עוד המשאבה חכמה',
-                        score: { medtronic: 3, tandem: 3, ilet: 3, twiist: 3, omnipod: 0 }
-                    },
-                    {
-                        text: 'מעדיף צינורית קצרה או משאבה זעירה שניתן להסתיר',
-                        score: { tandem: 5, twiist: 3, medtronic: 1, omnipod: -1 } 
-                    }
-                ]
-            },
-            {
-                id: 'cgm',
-                text: 'באיזה מד סוכר רציף (סנסור) אתה משתמש כיום או מעדיף?',
-                options: [
-                    {
-                        text: 'Dexcom G6 / G7',
-                        score: { tandem: 5, omnipod: 5, ilet: 5, twiist: 5, medtronic: -10 }
-                    },
-                    {
-                        text: 'Guardian 4 / Simplera',
-                        score: { medtronic: 10, tandem: -5, omnipod: -5, ilet: -5, twiist: -5 }
-                    },
-                    {
-                        text: 'Freestyle Libre 2 Plus / 3',
-                        score: { tandem: 3, omnipod: 3, twiist: 5, ilet: 3, medtronic: -5 }
-                    },
-                    {
-                        text: 'לא משנה לי / מוכן להחליף',
-                        score: { medtronic: 2, tandem: 2, omnipod: 2, ilet: 2, twiist: 2 }
-                    }
-                ]
-            },
-            {
-                id: 'control',
-                text: 'האם חשוב לך לשלוט על המשאבה (לתת בולוסים) מהטלפון הנייד?',
-                options: [
-                    {
-                        text: 'כן, זה קריטי לי. הטלפון הוא השלט שלי',
-                        score: { tandem: 5, omnipod: 5, twiist: 5, medtronic: -2, ilet: 2 }
-                    },
-                    {
-                        text: 'לא קריטי, מסתדר עם מסך המשאבה',
-                        score: { medtronic: 3, tandem: 1, omnipod: 0, ilet: 1, twiist: 1 }
-                    }
-                ]
-            },
-            {
-                id: 'automation_style',
-                text: 'כמה "אגרסיבית" תרצה שהמערכת תהיה בתיקון סוכר גבוה?',
-                options: [
-                    {
-                        text: 'אגרסיבית מאוד. תן לי תיקונים אוטומטיים כל כמה דקות',
-                        score: { medtronic: 8, ilet: 6, tandem: 2, omnipod: -3, twiist: 0 }
-                    },
-                    {
-                        text: 'עדינה. תעלה את הרקע (בזאל) אבל אל תתן מנות גדולות לבד',
-                        score: { omnipod: 5, tandem: 3, twiist: 3, medtronic: -2, ilet: -2 }
-                    }
-                ]
-            },
-            {
-                id: 'carbs',
-                text: 'איך אתה מסתדר עם ספירת פחמימות?',
-                options: [
-                    {
-                        text: 'אני שונא לספור. מעדיף רק להגיד "ארוחה רגילה/גדולה"',
-                        score: { ilet: 15, medtronic: -2, tandem: -2, omnipod: -2, twiist: -2 }
-                    },
-                    {
-                        text: 'אני סופר מדויק ורוצה שליטה על המינון',
-                        score: { medtronic: 2, tandem: 5, omnipod: 5, twiist: 5, ilet: -5 }
-                    }
-                ]
+                name: 'Omnipod (DASH / 5)',
+                type: 'tubeless',
+                minAge: 2,
+                hasHebrew: false,
+                hasSplitBolus: false,
+                hasAppControl: true, // Omnipod 5 has PDM or App possibilities
+                sensor: 'Dexcom G6/G7',
+                features: 'חופש מצינורות - פוד המוצמד לגוף.',
+                description: 'Omnipod מציעה את חווית השימוש היחידה ללא צינורית ("פוד"). הפוד עמיד למים, מוחלף כל 3 ימים ומספק דיסקרטיות מקסימלית. דגם Omnipod 5 מתקשר ישירות עם סנסור Dexcom.',
+                pros: ['ללא צינורית (חופש תנועה מלא)', 'עמידות למים', 'החלפה פשוטה', 'דיסקרטית', 'רשימת מזונות מובנית (ב-5)'],
+                cons: ['השלט (PDM) חייב להיות קרוב', 'ממשק באנגלית', 'יש להחליף את כל הפוד כל 3 ימים', 'אין בולוס מפוצל'],
+                matchTags: ['tubeless', 'waterproof', 'active_lifestyle', 'discrete', 'family_share']
             }
         ];
 
-        // --- STATE ---
-        let currentQuestionIndex = 0;
-        let scores = { medtronic: 0, tandem: 0, omnipod: 0, ilet: 0, twiist: 0 };
-        let history = [];
-
-        // --- FUNCTIONS ---
-
-        function init() {
-            lucide.createIcons();
-        }
-
-        function startQuiz() {
-            document.getElementById('welcome-screen').classList.add('hidden');
-            document.getElementById('question-screen').classList.remove('hidden');
-            document.getElementById('question-screen').classList.add('flex');
-            renderQuestion();
-        }
-
-        function renderQuestion() {
-            const question = QUESTIONS[currentQuestionIndex];
-            const total = QUESTIONS.length;
-            const progress = ((currentQuestionIndex + 1) / total) * 100;
-
-            // Update UI
-            document.getElementById('progress-text').innerText = `שאלה ${currentQuestionIndex + 1} מתוך ${total}`;
-            document.getElementById('progress-percent').innerText = `${Math.round(progress)}%`;
-            document.getElementById('progress-bar').style.width = `${progress}%`;
-            
-            document.getElementById('question-text').innerText = question.text;
-
-            // Generate Options
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = ''; // Clear previous options
-
-            question.options.forEach((option) => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-right p-5 rounded-xl border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group flex items-center justify-between";
-                btn.innerHTML = `
-                    <span class="text-lg text-gray-700 group-hover:text-blue-700 font-medium">${option.text}</span>
-                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-blue-500 flex items-center justify-center">
-                       <div class="w-3 h-3 rounded-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </div>
-                `;
-                btn.onclick = () => handleAnswer(option);
-                optionsContainer.appendChild(btn);
-            });
-        }
-
-        function handleAnswer(option) {
-            // Update Scores
-            Object.keys(option.score).forEach(pumpKey => {
-                scores[pumpKey] += option.score[pumpKey];
-            });
-
-            // Track History
-            history.push({ 
-                question: QUESTIONS[currentQuestionIndex].text, 
-                answer: option.text 
-            });
-
-            // Next Step
-            if (currentQuestionIndex < QUESTIONS.length - 1) {
-                currentQuestionIndex++;
-                // Add a small delay/animation effect if desired, but here we just render next
-                renderQuestion();
-            } else {
-                showResults();
+        const sensorsData = [
+            {
+                name: 'Dexcom G6/G7',
+                calibration: 'ללא כיול (אלא אם יש אי-התאמה)',
+                duration: '10 ימים',
+                notes: 'G7 מדויק וקטן יותר. מתחבר ל-Tandem ול-Omnipod 5. מאושר מגיל שנתיים.'
+            },
+            {
+                name: 'Guardian 4',
+                calibration: 'ללא דקירות שוטפות (דקירה אחת להפעלת SmartGuard)',
+                duration: '7 ימים',
+                notes: 'חלק אינטגרלי ממערכת Medtronic 780G. עובד בתיאום מלא לתיקון מינונים.'
+            },
+            {
+                name: 'FreeStyle Libre 2 Plus',
+                calibration: 'ללא דקירות (אלא אם יש אי-התאמה)',
+                duration: '15 ימים (הארוך ביותר)',
+                notes: 'חיישן פלאש המודד כל דקה. נדרשת סריקה לנתונים מלאים אם לא משתמשים באפליקציה רציף.'
             }
-        }
+        ];
 
-        function showResults() {
-            // Sort Results
-            const sortedPumps = Object.entries(scores)
-                .sort(([, a], [, b]) => b - a)
-                .map(([key]) => PUMPS[key]);
+        // --- Icon Component (Safe Wrapper) ---
+        const LucideIcon = ({ name, size = 24, className = "" }) => {
+            const ref = useRef(null);
 
-            const topMatch = sortedPumps[0];
-            const runnerUp = sortedPumps[1];
+            useEffect(() => {
+                if (window.lucide && window.lucide.icons && window.lucide.icons[name]) {
+                    const iconDef = window.lucide.icons[name];
+                    const svg = window.lucide.createElement(iconDef);
+                    
+                    svg.setAttribute('width', size);
+                    svg.setAttribute('height', size);
+                    svg.setAttribute('stroke-width', 2);
+                    
+                    // Combine class names
+                    const baseClass = `lucide lucide-${name.toLowerCase()}`;
+                    if (className) {
+                         svg.setAttribute('class', `${baseClass} ${className}`);
+                    } else {
+                         svg.setAttribute('class', baseClass);
+                    }
+                    
+                    if (ref.current) {
+                        ref.current.innerHTML = '';
+                        ref.current.appendChild(svg);
+                    }
+                }
+            }, [name, size, className]);
 
-            // Render Top Match
-            document.getElementById('result-name').innerText = topMatch.name;
-            document.getElementById('result-tagline').innerText = topMatch.tagline;
-            document.getElementById('result-description').innerText = topMatch.description;
+            return <span ref={ref} className="inline-flex items-center justify-center" style={{ minWidth: size, minHeight: size }} />;
+        };
 
-            const prosList = document.getElementById('result-pros');
-            prosList.innerHTML = topMatch.pros.map(pro => `
-                <li class="flex items-start gap-2 text-gray-600 text-sm">
-                    <span class="mt-1.5 w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></span>
-                    ${pro}
-                </li>
-            `).join('');
+        // --- Icons Collection ---
+        const Icons = {
+            Activity: (props) => <LucideIcon name="Activity" {...props} />,
+            Droplet: (props) => <LucideIcon name="Droplet" {...props} />,
+            Smartphone: (props) => <LucideIcon name="Smartphone" {...props} />,
+            Languages: (props) => <LucideIcon name="Languages" {...props} />,
+            Battery: (props) => <LucideIcon name="Battery" {...props} />,
+            Check: (props) => <LucideIcon name="Check" {...props} />,
+            AlertCircle: (props) => <LucideIcon name="AlertCircle" {...props} />,
+            Heart: (props) => <LucideIcon name="Heart" {...props} />,
+            ChevronRight: (props) => <LucideIcon name="ChevronRight" {...props} />,
+            ChevronLeft: (props) => <LucideIcon name="ChevronLeft" {...props} />,
+            Stethoscope: (props) => <LucideIcon name="Stethoscope" {...props} />,
+            Users: (props) => <LucideIcon name="Users" {...props} />,
+            Utensils: (props) => <LucideIcon name="Utensils" {...props} />,
+            XCircle: (props) => <LucideIcon name="XCircle" {...props} />,
+            Baby: (props) => <LucideIcon name="Baby" {...props} />
+        };
 
-            const consList = document.getElementById('result-cons');
-            consList.innerHTML = topMatch.cons.map(con => `
-                <li class="flex items-start gap-2 text-gray-600 text-sm">
-                    <span class="mt-1.5 w-1.5 h-1.5 bg-orange-400 rounded-full flex-shrink-0"></span>
-                    ${con}
-                </li>
-            `).join('');
-
-            // Render Runner Up
-            document.getElementById('runner-up-name').innerText = runnerUp.name;
-            document.getElementById('runner-up-tagline').innerText = runnerUp.tagline;
-            document.getElementById('runner-up-desc').innerText = runnerUp.description;
-            document.getElementById('runner-up-pro').innerText = runnerUp.pros[0];
-
-            // Render History
-            const historyList = document.getElementById('history-list');
-            historyList.innerHTML = history.map(item => `
-                <li class="flex justify-between border-b border-gray-200 pb-2 last:border-0">
-                    <span class="text-gray-500">${item.question}</span>
-                    <span class="text-gray-800 font-medium text-left mr-4">${item.answer}</span>
-                </li>
-            `).join('');
-
-            // Switch Screens
-            document.getElementById('question-screen').classList.add('hidden');
-            document.getElementById('question-screen').classList.remove('flex');
-            document.getElementById('result-screen').classList.remove('hidden');
+        // --- Main App Component ---
+        function App() {
+            const [view, setView] = useState('home'); 
             
-            // Re-run icons for new content
-            lucide.createIcons();
-            window.scrollTo(0, 0);
+            const renderView = () => {
+                switch(view) {
+                    case 'home': return <Home setView={setView} />;
+                    case 'wizard': return <Wizard setView={setView} />;
+                    case 'comparison': return <Comparison />;
+                    case 'info': return <Info />;
+                    default: return <Home setView={setView} />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+                    {/* Header */}
+                    <header className="bg-teal-600 text-white shadow-lg sticky top-0 z-50">
+                        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('home')}>
+                                <Icons.Stethoscope />
+                                <h1 className="text-xl font-bold">PumpSelector IL</h1>
+                            </div>
+                            <nav className="hidden md:flex gap-6 text-sm font-medium">
+                                <button onClick={() => setView('home')} className={`hover:text-teal-200 ${view === 'home' ? 'text-teal-100 underline' : ''}`}>ראשי</button>
+                                <button onClick={() => setView('wizard')} className={`hover:text-teal-200 ${view === 'wizard' ? 'text-teal-100 underline' : ''}`}>שאלון התאמה</button>
+                                <button onClick={() => setView('comparison')} className={`hover:text-teal-200 ${view === 'comparison' ? 'text-teal-100 underline' : ''}`}>השוואת נתונים</button>
+                                <button onClick={() => setView('info')} className={`hover:text-teal-200 ${view === 'info' ? 'text-teal-100 underline' : ''}`}>זכאות ומידע</button>
+                            </nav>
+                            <div className="md:hidden text-xs bg-teal-700 px-2 py-1 rounded">תפריט</div>
+                        </div>
+                        <div className="md:hidden flex justify-around bg-teal-700 py-2 text-xs text-white">
+                             <button onClick={() => setView('wizard')}>שאלון</button>
+                             <button onClick={() => setView('comparison')}>השוואה</button>
+                             <button onClick={() => setView('info')}>זכאות</button>
+                        </div>
+                    </header>
+
+                    {/* Content */}
+                    <main className="flex-grow container mx-auto px-4 py-8">
+                        {renderView()}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-800 text-slate-400 py-6 text-center text-sm">
+                        <p>© 2025 PumpSelector IL. פותח ככלי עזר למטופלים וצוות רפואי.</p>
+                        <p className="mt-2 text-xs max-w-2xl mx-auto px-4">
+                            הבהרה: המידע באתר מבוסס על נתונים טכניים ואינו מהווה ייעוץ רפואי.
+                        </p>
+                    </footer>
+                </div>
+            );
         }
 
-        function resetQuiz() {
-            currentQuestionIndex = 0;
-            scores = { medtronic: 0, tandem: 0, omnipod: 0, ilet: 0, twiist: 0 };
-            history = [];
+        // --- Home View ---
+        function Home({ setView }) {
+            return (
+                <div className="fade-in max-w-4xl mx-auto text-center space-y-12">
+                    <section className="space-y-6 py-10">
+                        <h2 className="text-4xl md:text-5xl font-bold text-teal-800">בחירת משאבת אינסולין <br/><span className="text-teal-600">הופכת לפשוטה יותר</span></h2>
+                        <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                            כלי עזר חכם למטופלים וצוות רפואי. 
+                            השאלון שלנו לוקח בחשבון גיל, צרכים תזונתיים (בולוס מפוצל), שפה והעדפות טכנולוגיות כדי למצוא את ההתאמה המושלמת.
+                        </p>
+                        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                            <button onClick={() => setView('wizard')} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                                <Icons.Activity />
+                                התחל שאלון התאמה מורחב
+                            </button>
+                            <button onClick={() => setView('comparison')} className="bg-white hover:bg-slate-100 text-teal-700 border-2 border-teal-600 font-bold py-4 px-8 rounded-full shadow transition flex items-center justify-center gap-2">
+                                <Icons.Droplet />
+                                צפה בטבלאות ההשוואה
+                            </button>
+                        </div>
+                    </section>
+
+                    <section className="grid grid-cols-1 md:grid-cols-3 gap-8 text-right">
+                        <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-teal-500">
+                            <div className="text-teal-500 mb-4"><Icons.Utensils /></div>
+                            <h3 className="text-xl font-bold mb-2">צרכים תזונתיים</h3>
+                            <p className="text-slate-600">האם אתם אוכלים ארוחות מורכבות הדורשות בולוס מפוצל? האם אתם מתקשים בספירת פחמימות?</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-teal-500">
+                            <div className="text-teal-500 mb-4"><Icons.Users /></div>
+                            <h3 className="text-xl font-bold mb-2">משפחה ומעקב</h3>
+                            <p className="text-slate-600">אפשרויות שיתוף מידע עם הורים ומטפלים בזמן אמת, ושליטה מרחוק.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-teal-500">
+                            <div className="text-teal-500 mb-4"><Icons.Languages /></div>
+                            <h3 className="text-xl font-bold mb-2">שפה ונוחות</h3>
+                            <p className="text-slate-600">סינון קריטי לפי שפת ממשק (עברית/אנגלית) וסוג החיבור לגוף (צינורית או פוד).</p>
+                        </div>
+                    </section>
+                </div>
+            );
+        }
+
+        // --- Wizard Component ---
+        function Wizard({ setView }) {
+            const [step, setStep] = useState(0);
+            const [answers, setAnswers] = useState({});
+            const [result, setResult] = useState(null);
+
+            const questions = [
+                {
+                    id: 'age_group',
+                    text: 'מה גיל המטופל?',
+                    icon: <Icons.Baby />,
+                    options: [
+                        { val: 'under_6', label: 'מתחת לגיל 6' },
+                        { val: '6_to_7', label: 'בין 6 ל-7' },
+                        { val: 'over_7', label: 'מעל גיל 7' }
+                    ]
+                },
+                {
+                    id: 'language',
+                    text: 'האם נדרש ממשק מלא בעברית?',
+                    icon: <Icons.Languages />,
+                    options: [
+                        { val: 'must_hebrew', label: 'כן, חובה עברית (המטופל/ת לא מסתדר עם אנגלית)' },
+                        { val: 'ok_english', label: 'לא חובה, מסתדרים עם אנגלית בסיסית' }
+                    ]
+                },
+                {
+                    id: 'tubes',
+                    text: 'מה ההעדפה לגבי חיבור לגוף (צינורית)?',
+                    icon: <Icons.Activity />,
+                    options: [
+                        { val: 'tubeless', label: 'חובה ללא צינורית ("פוד")' },
+                        { val: 'tube', label: 'מעדיף/ה צינורית (חיבור קבוע ויציב)' },
+                        { val: 'any', label: 'אין העדפה חזקה' }
+                    ]
+                },
+                {
+                    id: 'split_bolus',
+                    text: 'האם יש צורך ב"בולוס מפוצל"? (לארוחות עתירות שומן/חלבון כמו פיצה)',
+                    icon: <Icons.Utensils />,
+                    options: [
+                        { val: 'must_split', label: "כן, זה פיצ'ר קריטי עבורנו" },
+                        { val: 'not_critical', label: 'לא קריטי / מסתדרים בלי זה' }
+                    ]
+                },
+                {
+                    id: 'family_share',
+                    text: 'עד כמה חשוב שיתוף המידע עם בני משפחה (Followers)?',
+                    icon: <Icons.Users />,
+                    options: [
+                        { val: 'very_important', label: 'חשוב מאוד (רוצים שכל המשפחה תראה בטלפון)' },
+                        { val: 'standard', label: 'סטנדרטי' }
+                    ]
+                },
+                {
+                    id: 'tech_control',
+                    text: 'האם חשובה שליטה במתן בולוס דרך הטלפון הנייד?',
+                    icon: <Icons.Smartphone />,
+                    options: [
+                        { val: 'yes_app', label: 'כן, רוצים לשלוט מהנייד בלי לגעת במשאבה' },
+                        { val: 'no_need', label: 'לא קריטי' }
+                    ]
+                },
+                {
+                    id: 'carb_counting',
+                    text: 'איך הייתם מגדירים את יכולת ספירת הפחמימות?',
+                    icon: <Icons.Activity />,
+                    options: [
+                        { val: 'struggle', label: 'מתקשים / רוצים מערכת שמתקנת טעויות באופן אגרסיבי' },
+                        { val: 'pro', label: 'סופרים במדויק בדרך כלל' }
+                    ]
+                }
+            ];
+
+            const handleAnswer = (val) => {
+                const currentQ = questions[step];
+                const newAnswers = { ...answers, [currentQ.id]: val };
+                setAnswers(newAnswers);
+                
+                if (step < questions.length - 1) {
+                    setStep(step + 1);
+                } else {
+                    calculateResult(newAnswers);
+                }
+            };
+
+            const calculateResult = (finalAnswers) => {
+                let scores = { tandem: 0, medtronic: 0, omnipod: 0 };
+                let mismatches = { tandem: [], medtronic: [], omnipod: [] };
+                let matches = { tandem: [], medtronic: [], omnipod: [] }; // Added matches logic
+
+                // 1. Age Logic
+                if (finalAnswers.age_group === 'under_6') {
+                    scores.omnipod += 50; 
+                    matches.omnipod.push('מאושרת לשימוש מגיל שנתיים (מתאים לגיל הרך)');
+                    mismatches.medtronic.push('המשאבה מאושרת לשימוש רק מגיל 7 ומעלה');
+                    mismatches.tandem.push('המשאבה מאושרת לשימוש מגיל 6 ומעלה');
+                } else if (finalAnswers.age_group === '6_to_7') {
+                    scores.tandem += 20;
+                    matches.tandem.push('מאושרת לשימוש מגיל 6');
+                    scores.omnipod += 20;
+                    matches.omnipod.push('מאושרת לשימוש מגיל שנתיים');
+                    mismatches.medtronic.push('המשאבה מאושרת לשימוש רק מגיל 7 ומעלה');
+                } else {
+                    // Over 7
+                    scores.medtronic += 10; matches.medtronic.push('מתאימה לגיל המטופל');
+                    scores.tandem += 10; matches.tandem.push('מתאימה לגיל המטופל');
+                    scores.omnipod += 10; matches.omnipod.push('מתאימה לגיל המטופל');
+                }
+
+                // 2. Language
+                if (finalAnswers.language === 'must_hebrew') {
+                    scores.medtronic += 60;
+                    matches.medtronic.push('ממשק מלא בעברית כפי שנדרש');
+                    mismatches.tandem.push('ממשק המשאבה הוא באנגלית בלבד');
+                    mismatches.omnipod.push('ממשק המשאבה הוא באנגלית בלבד');
+                } else {
+                    matches.medtronic.push('ממשק בעברית/אנגלית');
+                    matches.tandem.push('ממשק באנגלית (תואם לבחירה)');
+                    matches.omnipod.push('ממשק באנגלית (תואם לבחירה)');
+                }
+
+                // 3. Tubes
+                if (finalAnswers.tubes === 'tubeless') {
+                    scores.omnipod += 60;
+                    matches.omnipod.push('ללא צינורית ("פוד") כפי שביקשתם');
+                    mismatches.tandem.push('זוהי משאבה עם צינורית');
+                    mismatches.medtronic.push('זוהי משאבה עם צינורית');
+                } else if (finalAnswers.tubes === 'tube') {
+                    scores.tandem += 20; matches.tandem.push('משאבה עם צינורית (תואם להעדפה)');
+                    scores.medtronic += 20; matches.medtronic.push('משאבה עם צינורית (תואם להעדפה)');
+                } else {
+                    matches.omnipod.push('אופציה ללא צינורית');
+                    matches.tandem.push('אופציה עם צינורית');
+                    matches.medtronic.push('אופציה עם צינורית');
+                }
+
+                // 4. Split Bolus
+                if (finalAnswers.split_bolus === 'must_split') {
+                    scores.tandem += 50;
+                    matches.tandem.push('כוללת אפשרות לבולוס מפוצל (חשוב לארוחות שומניות)');
+                    mismatches.medtronic.push('אין בולוס מפוצל (לפי הנתונים)');
+                    mismatches.omnipod.push('אין בולוס מפוצל (לפי הנתונים)');
+                }
+
+                // 5. Family Sharing
+                if (finalAnswers.family_share === 'very_important') {
+                    scores.tandem += 10; matches.tandem.push('אפשרויות שיתוף נתונים מתקדמות (Dexcom)');
+                    scores.omnipod += 10; matches.omnipod.push('אפשרויות שיתוף נתונים מתקדמות (Dexcom)');
+                }
+
+                // 6. App Control
+                if (finalAnswers.tech_control === 'yes_app') {
+                    scores.tandem += 30;
+                    matches.tandem.push('שליטה מלאה במתן בולוס מהאפליקציה');
+                    scores.omnipod += 15;
+                    matches.omnipod.push('אפשרויות שליטה מהנייד (במודלים תואמים)');
+                    mismatches.medtronic.push('שליטה מוגבלת מהנייד (בעיקר צפייה)');
+                }
+
+                // 7. Carb Counting
+                if (finalAnswers.carb_counting === 'struggle') {
+                    scores.medtronic += 40;
+                    matches.medtronic.push('מערכת SmartGuard מתקנת אוטומטית טעויות ספירה');
+                }
+
+                // Calculate Winner
+                const sortedIds = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+                
+                // Prepare result object
+                setResult({
+                    winnerId: sortedIds[0],
+                    runnerUpIds: sortedIds.slice(1),
+                    mismatches: mismatches,
+                    matches: matches,
+                    scores: scores
+                });
+            };
+
+            const reset = () => {
+                setStep(0);
+                setAnswers({});
+                setResult(null);
+            };
+
+            if (result) {
+                return <ResultView result={result} pumps={pumpsData} reset={reset} setView={setView} />;
+            }
+
+            const currentQ = questions[step];
+            const progress = ((step) / questions.length) * 100;
+
+            return (
+                <div className="fade-in max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border-t-8 border-teal-600">
+                    <div className="mb-8">
+                        <div className="flex justify-between text-sm text-slate-500 mb-2">
+                            <span>שאלה {step + 1} מתוך {questions.length}</span>
+                            <span>{Math.round(progress)}%</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2.5">
+                            <div className="bg-teal-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-3 bg-teal-100 text-teal-700 rounded-full">
+                            {currentQ.icon}
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-800">{currentQ.text}</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        {currentQ.options.map((opt, idx) => (
+                            <button 
+                                key={idx}
+                                onClick={() => handleAnswer(opt.val)}
+                                className="w-full text-right p-5 border-2 border-slate-100 rounded-xl hover:border-teal-500 hover:bg-teal-50 transition flex items-center justify-between group"
+                            >
+                                <span className="font-medium text-lg text-slate-700 group-hover:text-teal-700">{opt.label}</span>
+                                <span className="text-slate-300 group-hover:text-teal-500"><Icons.ChevronLeft /></span>
+                            </button>
+                        ))}
+                    </div>
+                    
+                    {step > 0 && (
+                        <button onClick={() => setStep(step - 1)} className="mt-8 text-slate-400 hover:text-slate-600 text-sm flex items-center gap-1">
+                            <Icons.ChevronRight size={16}/> חזור לשאלה הקודמת
+                        </button>
+                    )}
+                </div>
+            );
+        }
+
+        // --- Result Component ---
+        function ResultView({ result, pumps, reset, setView }) {
+            const winner = pumps.find(p => p.id === result.winnerId);
+            const winnerMismatches = result.mismatches[winner.id];
             
-            document.getElementById('result-screen').classList.add('hidden');
-            document.getElementById('welcome-screen').classList.remove('hidden');
+            return (
+                <div className="fade-in max-w-4xl mx-auto space-y-10">
+                    
+                    {/* Winner Section */}
+                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-teal-100">
+                        <div className="bg-teal-600 p-6 text-white text-center">
+                            <h2 className="text-3xl font-bold mb-2">ההמלצה המובילה עבורכם</h2>
+                            <p className="opacity-90">על בסיס השקלול של כל הפרמטרים (גיל, שפה, טכנולוגיה)</p>
+                        </div>
+                        
+                        <div className="p-8">
+                            <div className="flex flex-col md:flex-row gap-8 items-start">
+                                <div className="flex-1">
+                                    <h3 className="text-3xl font-bold text-teal-800 mb-4">{winner.name}</h3>
+                                    <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                                        {winner.description}
+                                    </p>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                                            <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2"><Icons.Check size={18}/> יתרונות בולטים</h4>
+                                            <ul className="text-sm space-y-1 text-slate-700">
+                                                {/* Use general pros + any specific matches if available in future, keeping simple for winner now */}
+                                                {winner.pros.slice(0, 4).map((pro, i) => <li key={i}>• {pro}</li>)}
+                                            </ul>
+                                        </div>
+                                        
+                                        {/* Gaps / Cons Section for Winner */}
+                                        <div className="bg-orange-50 p-4 rounded-lg border border-orange-100">
+                                            <h4 className="font-bold text-orange-800 mb-2 flex items-center gap-2"><Icons.AlertCircle size={18}/> שימו לב (חסרונות לצרכים שלכם)</h4>
+                                            {winnerMismatches.length > 0 ? (
+                                                <ul className="text-sm space-y-1 text-slate-700">
+                                                    {winnerMismatches.map((m, i) => <li key={i}>• {m}</li>)}
+                                                </ul>
+                                            ) : (
+                                                <p className="text-sm text-slate-500">נראה כי אופציה זו עונה על כל הדרישות שהצבתם.</p>
+                                            )}
+                                            {/* Generic cons if no specific mismatches */}
+                                            {winnerMismatches.length === 0 && (
+                                                <ul className="text-sm space-y-1 text-slate-500 mt-2 border-t border-orange-200 pt-2">
+                                                    {winner.cons.slice(0,2).map((c, i) => <li key={i}>• כללי: {c}</li>)}
+                                                </ul>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Runners Up Section */}
+                    <div>
+                        <h3 className="text-2xl font-bold text-slate-700 mb-6 text-center">אפשרויות נוספות שנבדקו</h3>
+                        <div className="grid grid-cols-1 gap-6">
+                            {result.runnerUpIds.map(id => {
+                                const pump = pumps.find(p => p.id === id);
+                                const mismatches = result.mismatches[id];
+                                const matches = result.matches[id];
+                                
+                                return (
+                                    <div key={id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                                        <h4 className="font-bold text-xl text-slate-800 mb-2">{pump.name}</h4>
+                                        <p className="text-sm text-slate-600 mb-4">{pump.features}</p>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Matches - What fits */}
+                                            <div className="bg-green-50 p-3 rounded text-sm">
+                                                <strong className="block text-green-700 mb-1 flex items-center gap-1">
+                                                    <Icons.Check size={14}/> במה זה כן מתאים?
+                                                </strong>
+                                                <ul className="list-disc list-inside text-slate-700 space-y-1">
+                                                    {matches && matches.length > 0 ? (
+                                                        matches.map((m, i) => <li key={i}>{m}</li>)
+                                                    ) : (
+                                                        <li>מאפיינים כלליים: {pump.pros[0]}</li>
+                                                    )}
+                                                </ul>
+                                            </div>
+
+                                            {/* Mismatches - What fits less */}
+                                            <div className="bg-red-50 p-3 rounded text-sm">
+                                                <strong className="block text-red-700 mb-1 flex items-center gap-1">
+                                                    <Icons.XCircle size={14}/> למה פחות מתאים לכם?
+                                                </strong>
+                                                <ul className="list-disc list-inside text-slate-700 space-y-1">
+                                                    {mismatches && mismatches.length > 0 ? (
+                                                        mismatches.map((m, i) => <li key={i}>{m}</li>)
+                                                    ) : (
+                                                        <li>פחות התאמה בניקוד הכללי</li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center gap-4 pt-8 border-t">
+                        <button onClick={reset} className="text-teal-600 font-bold hover:underline flex items-center gap-2">
+                            <Icons.Activity size={18}/> התחל שאלון מחדש
+                        </button>
+                        <span className="text-slate-300">|</span>
+                        <button onClick={() => setView('comparison')} className="text-teal-600 font-bold hover:underline flex items-center gap-2">
+                             <Icons.Droplet size={18}/> עבור לטבלאות השוואה
+                        </button>
+                    </div>
+                </div>
+            );
         }
 
-        // Initialize icons on load
-        window.onload = init;
+        // --- Comparison Component ---
+        function Comparison() {
+            const [tab, setTab] = useState('pumps'); 
 
+            return (
+                <div className="fade-in max-w-6xl mx-auto">
+                    <h2 className="text-3xl font-bold text-center mb-8">השוואה מפורטת</h2>
+                    
+                    <div className="flex justify-center gap-2 mb-8">
+                        <button onClick={() => setTab('pumps')} className={`px-6 py-2 rounded-full font-bold transition ${tab === 'pumps' ? 'bg-teal-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100'}`}>משאבות אינסולין</button>
+                        <button onClick={() => setTab('sensors')} className={`px-6 py-2 rounded-full font-bold transition ${tab === 'sensors' ? 'bg-teal-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100'}`}>חיישנים (CGM)</button>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+                        <div className="overflow-x-auto">
+                            {tab === 'pumps' ? (
+                                <table className="w-full min-w-[900px] text-right">
+                                    <thead className="bg-slate-100 text-slate-700">
+                                        <tr>
+                                            <th className="p-4 border-b w-1/5">שם המשאבה</th>
+                                            <th className="p-4 border-b w-1/4">מאפיינים וטכנולוגיה</th>
+                                            <th className="p-4 border-b w-1/4">יתרונות מרכזיים</th>
+                                            <th className="p-4 border-b w-1/4">חסרונות ודרישות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {pumpsData.map(pump => (
+                                            <tr key={pump.id} className="hover:bg-teal-50/30 transition">
+                                                <td className="p-4 align-top">
+                                                    <div className="font-bold text-lg text-teal-800">{pump.name}</div>
+                                                    <div className="text-sm font-medium text-slate-500 mt-1 mb-2">
+                                                        {pump.type === 'tubeless' ? 'ללא צינורית' : 'עם צינורית'}
+                                                    </div>
+                                                    <span className="inline-block px-2 py-1 bg-slate-200 text-xs rounded text-slate-700">גיל {pump.minAge}+</span>
+                                                </td>
+                                                <td className="p-4 align-top text-sm">
+                                                    <p className="mb-2">{pump.features}</p>
+                                                    <div className="space-y-1 text-slate-600">
+                                                        <div><strong>סנסור:</strong> {pump.sensor}</div>
+                                                        <div><strong>שפה:</strong> {pump.hasHebrew ? 'עברית ואנגלית' : 'אנגלית בלבד'}</div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 align-top text-sm">
+                                                    <ul className="list-disc list-inside space-y-1 text-green-800">
+                                                        {pump.pros.map((pro, i) => <li key={i}>{pro}</li>)}
+                                                    </ul>
+                                                </td>
+                                                <td className="p-4 align-top text-sm bg-slate-50">
+                                                    <ul className="list-disc list-inside space-y-1 text-red-800">
+                                                        {pump.cons.map((con, i) => <li key={i}>{con}</li>)}
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <table className="w-full min-w-[700px] text-right">
+                                    <thead className="bg-slate-100 text-slate-700">
+                                        <tr>
+                                            <th className="p-4 border-b">שם החיישן</th>
+                                            <th className="p-4 border-b">כיול ודקירות</th>
+                                            <th className="p-4 border-b">משך שימוש</th>
+                                            <th className="p-4 border-b">הערות חשובות</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {sensorsData.map((sensor, idx) => (
+                                            <tr key={idx} className="hover:bg-teal-50/30 transition">
+                                                <td className="p-4 font-bold text-teal-800">{sensor.name}</td>
+                                                <td className="p-4 text-sm">{sensor.calibration}</td>
+                                                <td className="p-4 text-sm">{sensor.duration}</td>
+                                                <td className="p-4 text-sm text-slate-600">{sensor.notes}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- Info Component ---
+        function Info() {
+            return (
+                <div className="fade-in max-w-4xl mx-auto space-y-8">
+                    <h2 className="text-3xl font-bold text-center text-teal-900">זכאות וסל בריאות</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-white p-6 rounded-xl shadow-md border-r-4 border-blue-500">
+                            <h3 className="font-bold text-xl mb-3 flex items-center gap-2">
+                                <Icons.AlertCircle className="text-blue-500" />
+                                הערה כללית חשובה
+                            </h3>
+                            <p className="text-slate-600 leading-relaxed">
+                                טכנולוגיות אלו (סנסורים ומשאבות היברידיות) ניתנות לרוב במסגרת סל הבריאות לאנשים עם 
+                                <strong> סוכרת סוג 1 (סוכרת נעורים)</strong>. הזכאות כפופה לקריטריונים רפואיים נוספים הנקבעים ע"י הקופות.
+                            </p>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-md border-r-4 border-teal-500">
+                            <h3 className="font-bold text-xl mb-3">Medtronic MiniMed 780G</h3>
+                            <ul className="space-y-2 text-slate-600 text-sm">
+                                <li className="flex items-start gap-2"><Icons.Check size={16} className="mt-1 text-teal-500"/> מאושרת לשימוש לאנשים עם סוכרת סוג 1.</li>
+                                <li className="flex items-start gap-2"><Icons.Check size={16} className="mt-1 text-teal-500"/> גיל מינימלי: 7 ומעלה.</li>
+                            </ul>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-md border-r-4 border-teal-500">
+                            <h3 className="font-bold text-xl mb-3">Tandem t:slim X2</h3>
+                            <ul className="space-y-2 text-slate-600 text-sm">
+                                <li className="flex items-start gap-2"><Icons.Check size={16} className="mt-1 text-teal-500"/> זמינה בכל קופות החולים.</li>
+                                <li className="flex items-start gap-2"><Icons.Check size={16} className="mt-1 text-teal-500"/> מאושרת לשימוש מגיל 6 ומעלה.</li>
+                            </ul>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-md border-r-4 border-green-500">
+                            <h3 className="font-bold text-xl mb-3">Dexcom G6 / G7</h3>
+                            <ul className="space-y-2 text-slate-600 text-sm">
+                                <li className="flex items-start gap-2"><Icons.Check size={16} className="mt-1 text-green-500"/> מאושר לשימוש בילדים מגיל שנתיים ומעלה.</li>
+                                <li className="flex items-start gap-2"><Icons.Check size={16} className="mt-1 text-green-500"/> מאושר לשימוש גם במהלך היריון.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
