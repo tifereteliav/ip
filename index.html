@@ -54,10 +54,10 @@
                 hasAppControl: true,
                 sensor: 'Dexcom G6/G7',
                 features: 'משאבה היברידית קטנה וחכמה עם טכנולוגיית Control-IQ.',
-                description: 'משאבת ה-Tandem t:slim X2 היא משאבה היברידית מתקדמת במעגל סגור. היא מתממשקת בצורה חלקה עם סנסור Dexcom, מאפשרת מתן בולוס ישירות מהטלפון הנייד (במכשירים תומכים) ובעלת גודל קומפקטי במיוחד.',
-                pros: ['שליטה מהנייד (אפליקציה)', 'קטנה ב-38% ממשאבות אחרות', 'בולוס מפוצל (ייחודי לטנדם)', 'סוללה נטענת', 'עדכון תוכנה מהבית'],
-                cons: ['דורשת חיבור פיזי למחשב לעדכונים', 'יש צינורית', 'ממשק באנגלית בלבד'],
-                matchTags: ['control_app', 'small_size', 'split_bolus', 'rechargeable', 'tech_savvy', 'tube', 'family_share']
+                description: 'משאבת ה-Tandem t:slim X2 היא משאבה היברידית מתקדמת במעגל סגור. היא מתממשקת בצורה חלקה עם סנסור Dexcom, מאפשרת מתן בולוס ישירות מהטלפון הנייד (במכשירים תומכים) ובעלת גודל קומפקטי במיוחד. היא מאפשרת גמישות טיפולית רבה למשתמש.',
+                pros: ['שליטה מהנייד (אפליקציה)', 'קטנה ב-38% ממשאבות אחרות', 'גמישות לתיקונים ידניים (Control-IQ)', 'בולוס מפוצל (ייחודי לטנדם)', 'סוללה נטענת'],
+                cons: ['דורשת חיבור פיזי למחשב לעדכונים', 'יש צינורית', 'ממשק באנגלית בלבד', 'חובה לנתק בזמן שחייה'],
+                matchTags: ['control_app', 'small_size', 'split_bolus', 'rechargeable', 'tech_savvy', 'tube', 'family_share', 'manual_control']
             },
             {
                 id: 'medtronic',
@@ -65,14 +65,14 @@
                 type: 'tube',
                 minAge: 7,
                 hasHebrew: true,
-                hasSplitBolus: false, // According to user data provided
-                hasAppControl: false, // Limited control compared to Tandem's bolus via app feature in user data context
+                hasSplitBolus: false, 
+                hasAppControl: false, 
                 sensor: 'Guardian 4',
                 features: 'מערכת אוטומטית חזקה עם ממשק מלא בעברית.',
-                description: 'מערכת ה-MiniMed 780G ידועה ביכולתה לתקן רמות סוכר גבוהות באופן אוטומטי כל 5 דקות, מה שמספק "רשת ביטחון" מצוינת למי שמתקשה בספירת פחמימות מדויקת. המשאבה עמידה למים ובעלת ממשק בעברית.',
-                pros: ['ממשק מלא בעברית', 'תיקון אוטומטי אגרסיבי (טוב למתקשים בספירה)', 'סט עירוי עד 7 ימים', 'סוללת AA (זמינות גבוהה)', 'עמידה למים'],
-                cons: ['דורשת דקירה אחת לכניסה ל-SmartGuard', 'אין בולוס מפוצל (לפי הנתונים)', 'עיצוב מעט גדול יותר'],
-                matchTags: ['hebrew', 'carb_struggle', 'waterproof', 'battery_aa', 'tube']
+                description: 'מערכת ה-MiniMed 780G ידועה ביכולתה לתקן רמות סוכר גבוהות באופן אוטומטי כל 5 דקות (SmartGuard), מה שמספק "רשת ביטחון" מצוינת למי שמעדיף לתת למשאבה לנהל את האירוע באופן אוטומטי ולהמעיט בהתערבות.',
+                pros: ['ממשק מלא בעברית', 'תיקון אוטומטי אגרסיבי (אוטומציה מלאה)', 'סט עירוי עד 7 ימים', 'סוללת AA (זמינות גבוהה)', 'עמידה למים (נתזים, לא לשחייה)'],
+                cons: ['דורשת דקירה אחת לכניסה ל-SmartGuard', 'פחות גמישה לתיקונים ידניים במצב אוטומטי', 'עיצוב מעט גדול יותר', 'חובה לנתק בזמן שחייה'],
+                matchTags: ['hebrew', 'carb_struggle', 'waterproof', 'battery_aa', 'tube', 'full_auto']
             },
             {
                 id: 'omnipod',
@@ -81,13 +81,13 @@
                 minAge: 2,
                 hasHebrew: false,
                 hasSplitBolus: false,
-                hasAppControl: true, // Omnipod 5 has PDM or App possibilities
+                hasAppControl: true, 
                 sensor: 'Dexcom G6/G7',
                 features: 'חופש מצינורות - פוד המוצמד לגוף.',
-                description: 'Omnipod מציעה את חווית השימוש היחידה ללא צינורית ("פוד"). הפוד עמיד למים, מוחלף כל 3 ימים ומספק דיסקרטיות מקסימלית. דגם Omnipod 5 מתקשר ישירות עם סנסור Dexcom.',
-                pros: ['ללא צינורית (חופש תנועה מלא)', 'עמידות למים', 'החלפה פשוטה', 'דיסקרטית', 'רשימת מזונות מובנית (ב-5)'],
+                description: 'Omnipod מציעה את חווית השימוש היחידה ללא צינורית ("פוד"). הפוד עמיד למים, מוחלף כל 3 ימים ומספק דיסקרטיות מקסימלית. דגם Omnipod 5 מתקשר ישירות עם סנסור Dexcom ומספק איזון היברידי.',
+                pros: ['ללא צינורית (חופש תנועה מלא)', 'עמידה מלאה למים (מתאימה לשחייה)', 'החלפה פשוטה', 'דיסקרטית', 'רשימת מזונות מובנית (ב-5)'],
                 cons: ['השלט (PDM) חייב להיות קרוב', 'ממשק באנגלית', 'יש להחליף את כל הפוד כל 3 ימים', 'אין בולוס מפוצל'],
-                matchTags: ['tubeless', 'waterproof', 'active_lifestyle', 'discrete', 'family_share']
+                matchTags: ['tubeless', 'waterproof', 'active_lifestyle', 'discrete', 'family_share', 'swimmer']
             }
         ];
 
@@ -159,7 +159,9 @@
             Users: (props) => <LucideIcon name="Users" {...props} />,
             Utensils: (props) => <LucideIcon name="Utensils" {...props} />,
             XCircle: (props) => <LucideIcon name="XCircle" {...props} />,
-            Baby: (props) => <LucideIcon name="Baby" {...props} />
+            Baby: (props) => <LucideIcon name="Baby" {...props} />,
+            Waves: (props) => <LucideIcon name="Waves" {...props} />,
+            Sliders: (props) => <LucideIcon name="Sliders" {...props} /> // For control preference
         };
 
         // --- Main App Component ---
@@ -224,7 +226,7 @@
                         <h2 className="text-4xl md:text-5xl font-bold text-teal-800">בחירת משאבת אינסולין <br/><span className="text-teal-600">הופכת לפשוטה יותר</span></h2>
                         <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
                             כלי עזר חכם למטופלים וצוות רפואי. 
-                            השאלון שלנו לוקח בחשבון גיל, צרכים תזונתיים (בולוס מפוצל), שפה והעדפות טכנולוגיות כדי למצוא את ההתאמה המושלמת.
+                            השאלון שלנו לוקח בחשבון גיל, שליטה אישית, שחייה, צרכים תזונתיים ועוד כדי למצוא את ההתאמה המושלמת עבורכם.
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
                             <button onClick={() => setView('wizard')} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
@@ -245,9 +247,9 @@
                             <p className="text-slate-600">האם אתם אוכלים ארוחות מורכבות הדורשות בולוס מפוצל? האם אתם מתקשים בספירת פחמימות?</p>
                         </div>
                         <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-teal-500">
-                            <div className="text-teal-500 mb-4"><Icons.Users /></div>
-                            <h3 className="text-xl font-bold mb-2">משפחה ומעקב</h3>
-                            <p className="text-slate-600">אפשרויות שיתוף מידע עם הורים ומטפלים בזמן אמת, ושליטה מרחוק.</p>
+                            <div className="text-teal-500 mb-4"><Icons.Sliders /></div>
+                            <h3 className="text-xl font-bold mb-2">שליטה ואוטומציה</h3>
+                            <p className="text-slate-600">האם אתם מעדיפים שליטה ידנית מלאה או נותנים למשאבה לנהל הכל באוטומט?</p>
                         </div>
                         <div className="bg-white p-6 rounded-xl shadow-md border-t-4 border-teal-500">
                             <div className="text-teal-500 mb-4"><Icons.Languages /></div>
@@ -283,6 +285,25 @@
                     options: [
                         { val: 'must_hebrew', label: 'כן, חובה עברית (המטופל/ת לא מסתדר עם אנגלית)' },
                         { val: 'ok_english', label: 'לא חובה, מסתדרים עם אנגלית בסיסית' }
+                    ]
+                },
+                {
+                    id: 'control_pref',
+                    text: 'מהי הגישה המועדפת לגבי ניהול הטיפול (אוטומציה מול שליטה)?',
+                    icon: <Icons.Sliders />,
+                    options: [
+                        { val: 'manual_control', label: 'חייב/ת שליטה מלאה - חשוב לי לתת תיקונים ידניים ולהתערב' },
+                        { val: 'full_auto', label: 'מעדיף/ה "שגר ושכח" - שהמשאבה תנהל את התיקונים לבד ככל הניתן' }
+                    ]
+                },
+                {
+                    id: 'swimming',
+                    text: 'האם שחייה היא חלק משמעותי משגרת החיים?',
+                    icon: <Icons.Waves />,
+                    options: [
+                        { val: 'swim_with', label: 'כן, וחשוב לי לשחות עם המשאבה עלי (רצף טיפולי)' },
+                        { val: 'swim_disconnect', label: 'כן, אבל אני יכול/ה לנתק אותה לשעה-שעתיים' },
+                        { val: 'no_swim', label: 'לא שוחה באופן קבוע' }
                     ]
                 },
                 {
@@ -348,7 +369,7 @@
             const calculateResult = (finalAnswers) => {
                 let scores = { tandem: 0, medtronic: 0, omnipod: 0 };
                 let mismatches = { tandem: [], medtronic: [], omnipod: [] };
-                let matches = { tandem: [], medtronic: [], omnipod: [] }; // Added matches logic
+                let matches = { tandem: [], medtronic: [], omnipod: [] };
 
                 // 1. Age Logic
                 if (finalAnswers.age_group === 'under_6') {
@@ -379,6 +400,27 @@
                     matches.medtronic.push('ממשק בעברית/אנגלית');
                     matches.tandem.push('ממשק באנגלית (תואם לבחירה)');
                     matches.omnipod.push('ממשק באנגלית (תואם לבחירה)');
+                }
+
+                // 2.5 Control vs Automation Logic (New)
+                if (finalAnswers.control_pref === 'manual_control') {
+                    scores.tandem += 40;
+                    matches.tandem.push('מערכת Control-IQ מאפשרת גמישות רבה ותיקונים ידניים');
+                    mismatches.medtronic.push('המערכת האוטומטית לעיתים מגבילה התערבות ידנית');
+                } else if (finalAnswers.control_pref === 'full_auto') {
+                    scores.medtronic += 30;
+                    matches.medtronic.push('מערכת אוטומטית חזקה (SmartGuard) שלוקחת פיקוד');
+                }
+
+                // 2.6 Swimming Logic
+                if (finalAnswers.swimming === 'swim_with') {
+                    scores.omnipod += 60;
+                    matches.omnipod.push('היחידה שמאפשרת שחייה ללא ניתוק (עמידה למים)');
+                    mismatches.tandem.push('חובה לנתק את המשאבה בזמן שחייה');
+                    mismatches.medtronic.push('חובה לנתק את המשאבה בזמן שחייה');
+                } else if (finalAnswers.swimming === 'swim_disconnect') {
+                    matches.tandem.push('ניתן לנתק לצורך שחייה לזמן מוגבל');
+                    matches.medtronic.push('ניתן לנתק לצורך שחייה לזמן מוגבל');
                 }
 
                 // 3. Tubes
@@ -519,7 +561,6 @@
                                         <div className="bg-green-50 p-4 rounded-lg border border-green-100">
                                             <h4 className="font-bold text-green-800 mb-2 flex items-center gap-2"><Icons.Check size={18}/> יתרונות בולטים</h4>
                                             <ul className="text-sm space-y-1 text-slate-700">
-                                                {/* Use general pros + any specific matches if available in future, keeping simple for winner now */}
                                                 {winner.pros.slice(0, 4).map((pro, i) => <li key={i}>• {pro}</li>)}
                                             </ul>
                                         </div>
